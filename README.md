@@ -14,9 +14,59 @@ one section per day including:
 4. YouTube video link
 5. Tasks
 6. Problems
-7. Learning
+7. Learnings
 8. Questions
 
+---
+## Day 01
+
+**Title:** where to start? how to structure? </br>
+**Date:** 2026-04-01 </br>
+**Time:** </br>
+**Video:**  
+
+**Tasks** </br>
+_creating python file</br>
+_install python extensions for vscode</br>
+_repeating basics</br>
+_learning tkinter</br> 
+_creating first window
+
+**Problems**</br>
+_where to start</br>
+_finding the right tutorials</br>
+_some spelling mistakes</br>
+_code runner extension needed a different setting (python -> python3)</br>
+_forgot how to commit and push to GitHub
+
+**Learnings**</br>
+_Basics Python, Basics Git, tkinter
+
+**Questions**</br>
+1. ChatGbt
+Was ist tkinter.font?</br>
+kann ich auch meine eigene schrift in ein programm einbetten?</br>
+kannst du mir customTkinter genauer erklären? </br>
+und was ist PyInstaller?</br>
+erkläre mir kurz classes in python?</br>
+was genau macht die Tk funktion: window = Tk()?</br>
+warum zwei mal tk.Tk()?</br>
+wenn ich bei python librarys installiere (zb. tkinter) brauche ich dann internet oder von wo wird das installiert?</br>
+wie waren nochmal die python basics? string tuple....</br>
+ist es bei strings egal welche anführungszeichen?</br>
+wie mache ich nochmal einen absatz? \n aber wo?</br>
+welchen code runner?</br>
+warum geht das nicht? name="peter" tk._test("peter") bzw. was schreibe ich in die klammern?</br>
+was gibt es bei tkinter alles für Widgets?</br>
+2. Google</br>
+comment in python</br>
+Tkinter Tk </br>
+what is gui in python
+3. Youtube</br>
+https://www.youtube.com/watch?v=k_ToCC4-pe8 </br>
+https://www.youtube.com/watch?v=yYALsys-P_w </br>
+https://www.youtube.com/watch?v=d2HT7i9OrHE&list=PL_pqkvxZ6ho23EXCx7HJtOaUZ-mDl_GXY </br>
+https://www.youtube.com/watch?v=idYXmWVESeo&list=PL_pqkvxZ6ho23EXCx7HJtOaUZ-mDl_GXY&index=2 </br>
 ---
 
 ## Day 00
@@ -35,7 +85,7 @@ _setting up OBS (streaming)
 **Problems**</br>
 _none
 
-**Learings**</br>
+**Learnings**</br>
 _Basics in Git, GitHub, OBS
 
 **Questions**</br>
