@@ -20,7 +20,7 @@ one section per day including:
 ---
 ## Day 01
 
-**Title:** where to start? how to structure? </br>
+**Title:** How to start? How to structure? </br>
 **Date:** 2026-04-01 </br>
 **Time:** </br>
 **Video:**  
