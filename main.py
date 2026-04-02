@@ -1,47 +1,31 @@
-#tk alias führt Tk funktion aus
-#window = tk.Tk()
-
-#Spicker:
-#int, float, str, bool → einfache Werte
-#list, tuple, set, dict → Sammlungen / Datenstrukturen
-#None → leerer Wert
-#def → Funktionen
-#class → Objekte / eigene Datentypen
-
-#wiederholung der basics:
-#string = "das ist ein String/text"
-#integer = 5
-#float = 1.5
-#print("string\n", "integer\n", "float")
-
-
-#import tkinter library and name it as a alias 
-#tkinter ist eine Library/ Anbindung zu Tk, ein Tool-kit für grafische Oberflächen. Mithilfe von tkinter können wir auch Tk zugreifen.
-
-
-#hier importieren wir tkinter und haben somit zugriff auf das Tool-Kit Tk
 import tkinter as tk
-#import tkinter.font as tkFont
 
-#testing window for tkinter
-#tk._test()
 
-#Labels sind Widgets in einer GUI, also ein baustein innerhalb meines Fensters.
-#Buttons sind ebenfalls Widgets
-#es gibt viele weitere Widgets in der tkinter library 
-
-#how to create a GUI?
-
-#create tk-object and safe it in variable (root)
 root = tk.Tk()
-#widget erstellen um inhalt in das fenster einzubauen
+root.title("Title")
 
-#root ist hier parent
-#um später zugriff auf das label zu haben braucht es eine Variable (label1)
-label1 = tk.Label(root, text="hello world")
+#root settings:
+swidth = root.winfo_screenmmwidth()
+sheight = root.winfo_screenheight()
 
-#text wird bisher nicht angezeigt weil layout fehlt, es benötigt die methode pack:
-label1.pack()
+width = int(swidth * 0.5)
+height = int(sheight * 0.2)
 
-#hier wird eine Methode gestartet
+root.geometry(f'{width}x{height}')
+root.minsize(width=200,height=100)
+root.maxsize(width=500, height=400)
+root.resizable(True, True)
+
+#root layout
+
+#root content 
+label1 = tk.Label(root, text="hello world!", bg='#00ff00')
+label1.pack(side='top', expand=True, fill='both')
+
+label2 = tk.Label(root, text='hallo welt!', bg='#ff00fc')
+label2.pack(side='top', expand=True, fill='both')
+
+
+
+# --- Start Programm ---
 root.mainloop()

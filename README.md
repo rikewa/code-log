@@ -60,7 +60,7 @@ warum geht das nicht? name="peter" tk._test("peter") bzw. was schreibe ich in di
 was gibt es bei tkinter alles für Widgets?</br>
 2. Google</br>
 comment in python</br>
-Tkinter Tk </br>
+Tkinter Tk</br>
 what is gui in python
 3. Youtube</br>
 https://www.youtube.com/watch?v=k_ToCC4-pe8 </br>
