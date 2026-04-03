@@ -25,10 +25,24 @@
 
 #hier importieren wir tkinter und haben somit zugriff auf das Tool-Kit Tk
 import tkinter as tk
+from tkinter import ttk 
+#pillow library importieren
+
+#ImageTk ist die Schnittstelle zwischen Pillow und Tkinter
+from PIL import Image, ImageTk
 #import tkinter.font as tkFont
 
 #testing window for tkinter
 #tk._test()
+
+img = Image.open("logo.png")
+#hier wird das img zu einem in ein tkinter lesbares Format umgewandelt (PhotoImage). 
+#PhotoImage ist eine von Pillow vor definierte Klasse
+photo = ImageTk.PhotoImage(img)
+
+img.show()
+
+
 
 #Labels sind Widgets in einer GUI, also ein baustein innerhalb meines Fensters.
 #Buttons sind ebenfalls Widgets
@@ -69,7 +83,22 @@ label2.pack(side='top', expand=True, fill='y')
 
 #mögliche side values: 'bottom', 'left', 'right'
 
+#mithilfe von ttk widgets lässt sich das verhalten vom code und das erscheinungsbild eines Widgets besser
+#trennen. Es ist nicht notwendig, aber oft sinnvoll, sobald der code komplexer wird.
+#bei tk wird sowohl die funktion eines widges sowie dessen erscheinungsbild im widget selbst festgelegt
+#siehe Z.65/68
 
+#bei ttk wird beides seperat voneinander geschrieben:
+#Widget:
+label3 = ttk.Label(root, image=photo)
+
+#Inhalt kann auch mithilfe der configure methode seperat stehen
+#label3.configure(text='hallo welt!')
+
+#Erscheinungsbild
+
+
+label3.pack(side='top', expand=True, fill='y')
 
 
 

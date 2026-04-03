@@ -1,0 +1,25 @@
+import tkinter as tk
+from tkinter import ttk
+from PIL import Image, ImageTk
+
+root = tk.Tk()
+root.title('title')
+#das image muss inherhalb des Fensters stehen (root), alles was in das fenster soll, 
+#muss nach root kommen (hier: image und label1)
+#resize((das ist ein Tuple))
+image = Image.open('logo.png').resize((150,50))
+photo = ImageTk.PhotoImage(image)
+
+#image2 = Image.open('day03.png').resize((150,50))
+#photo2 = ImageTk.PhotoImage(image2)
+label2 = tk.Label(root, text='hello world', bg='#00ff00')
+label2.pack(side='bottom', expand=True, fill='both' )
+
+
+label1 = ttk.Label(root, image=photo)
+label1.pack()
+
+#label2 = ttk.Label(root, image=photo2)
+#label2.pack()
+
+root.mainloop()
