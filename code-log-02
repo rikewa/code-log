@@ -35,12 +35,7 @@ from PIL import Image, ImageTk
 #testing window for tkinter
 #tk._test()
 
-img = Image.open("logo.png")
-#hier wird das img zu einem in ein tkinter lesbares Format umgewandelt (PhotoImage). 
-#PhotoImage ist eine von Pillow vor definierte Klasse
-photo = ImageTk.PhotoImage(img)
 
-img.show()
 
 
 
@@ -71,6 +66,12 @@ root.maxsize(width=500, height=400)
 root.resizable(True, True)
 
 
+img = Image.open("logo.png")
+#hier wird das img zu einem in ein tkinter lesbares Format umgewandelt (PhotoImage). 
+#PhotoImage ist eine von Pillow vor definierte Klasse
+photo = ImageTk.PhotoImage(img)
+
+img.show()
 #root ist hier parent
 #um später zugriff auf das label zu haben braucht es eine Variable (label1)
 #text wird bisher nicht angezeigt weil layout fehlt, es benötigt die methode pack:
