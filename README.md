@@ -18,32 +18,162 @@ one section per day including:
 8. Questions
 
 ---
+## Day 04
+
+**[Title]** How to layer elements?</br>
+**[Date]** 2026-04-04 </br>
+**[Time]** </br>
+**[Video]**  
+
+**[Tasks]** </br>
+_layering text over image</br>
+_importing font</br>
+_experimenting</br>
+_repetition 
+
+**[Problems]**</br>
+_Typos</br>
+_Elements not displaying</br>
+_Comprehension questions
+
+**[Learnings]**</br>
+_Three ways to address labels (configure/[])</br>
+_Placing elements on top of and around each other (compound)</br>
+_Embedding system fonts
+
+**[Questions]**</br>
+_ChatGbt</br>
+welche variante ist wann am sinnvollsten?</br>
+warum wird das photo angezeigt obwohl ich zu späteren zeitpunkten texte einfüge?</br>
+wenn ich nun in dieser zeile label1['text'] = 'HELLO WORLD' den text mit einem anderen bild ersetze wird aber das 2. bild angezeigt, warum?</br>
+was passiert bei diesem code?</br> 
+und hier?</br>
+erkläre mir compound?</br>
+ist compound dann eine methode oder was ist das genau?</br>
+gilt compound nur für Labels? oder kann ich das auch anderen Widgets hinzufügen?</br>
+kannst du mir hier erklären was genau passiert?</br>
+welche schrift-format benötige ich bei python um meine eigene schrift einzubetten? otf? woff?</br>
+ich habe die schriftdatei in meinen projektordner eingefügt, muss ich die nicht irgendwie verlinken?</br>
+hier möchte ich die schriftgröße in 100 haben aber es wird dennoch sher klein angezeigt. wo ist der fehler?</br>
+_Google</br>
+eckige klammer mac</br>
+_Youtube
+
+---
+## Day 03
+
+**[Title]** How to place pictures?</br>
+**[Date]** 2026-04-03 </br>
+**[Time]** </br>
+**[Video]**  
+
+**[Tasks]** </br>
+_ttk</br>
+_installing pillow</br>
+_placing image</br>
+_cleaning up files and code
+
+**[Problems]**</br>
+_problems with pillow installation</br>
+_placed image outside from root</br>
+_spelling mistakes 
+
+**[Learnings]**</br>
+_Pillow library</br>
+_how to connect Pillow with Tkinter library</br>
+_placing images</br>
+_resizing 
+
+**[Questions]**</br>
+_ChatGbt</br>
+ist ttk dann mehr für das erscheinungsbild zuständig?</br>
+wie kann ich das pillow modul bei vs code installieren?</br>
+ich bin mir gerade nicht sicher ob ich das packet am richtigen ort installiert habe?</br>
+kann ich den .venv ordner löschen? weil globale installation reicht doch?</br>
+ich verstehe nicht so ganz was gerade bei der installation passiert ist?</br>
+das heißt ich kann erstmal den .vev ordner löschen?</br>
+seit der installation ist die datei .ds_store verschwunden. was ist das für eine datei?</br>
+was bedeutet diese Zeile?: from PIL import Image, ImageTk(Import "PIL" could not be resolved)</br>
+was genau ist ein python interpreter?</br>
+was genau macht imageTk? photo = ImageTk.PhotoImage(img)</br>
+also ist das hier eine methode? PhotoImage</br>
+das heißt ich könnte auch jeglichen anderen begriff anstelle von PhotoImage verwenden?</br>
+ah also ist PhotoImage eine vor definierte klasse von pillow?</br>
+theoretisch könnte ich das pillow modul mit python also selber schreiben, weil es python code ist?</br>
+_Google</br>
+pillow python package vscode</br>
+https://www.reddit.com/r/learnprogramming/comments/1hu8dil/how_do_i_install_pillow_pil_in_visual_studio/</br>
+https://pillow.readthedocs.io/en/stable/installation/index.html</br>
+_Youtube</br>
+https://www.youtube.com/watch?v=Be4sCNq_LN4
+
+---
+## Day 02
+
+**[Title]** How to set up windows?</br>
+**[Date]** 2026-04-02 </br>
+**[Time]** </br>
+**[Video]**  
+
+**[Tasks]** </br>
+_learning pack</br>
+_setting up window</br>
+_experimenting 
+
+**[Problems]**</br>
+_centering window title is not possible </br>
+_comprehension questions
+
+**[Learnings]**</br>
+_pack layout manager</br>
+_what is a method</br>
+_setting up windows (size/resize, height/width, max/min)</br>
+_window positioning
+
+**[Questions]**</br>
+_ChatGbt</br>
+wie kann ich die fenstergröße eines tkinter fensters ändern?</br>
+kann ich es auch im größenverhältnis von displays einrichten?</br>
+was genau passiert hier? width = int(screen_width * 0.8) height = int(screen_height * 0.8)</br>
+winfo_screenwidth() was ist das dann? eine methode oder woher nimmt das programm die info zur breite/höhe?</br>
+kannst du mir noch das ausführlicher erklären? root.geometry(f"{width}x{height}")</br>
+ich verstehe noch nicht warum das programm einen string und kein integer braucht, weil es sich ja um einen wert handelt?</br>
+kann ich das zentrieren? root.title("Timer")?</br>
+der ist gerade bei mir linksbündig und klebt am rand. kann ich den zentrieren?</br>
+wie gebe ich bei einem label den hintergrund als hex code an?</br>
+_Google</br>
+geschweifte klammer mac</br>
+center tkinter window title</br>
+_Youtube</br>
+https://www.youtube.com/watch?v=wZ6yiUTK3Zs
+
+---
 ## Day 01
 
-**Title:** How to start? How to structure? </br>
-**Date:** 2026-04-01 </br>
-**Time:** </br>
-**Video:**  
+**[Title]** How to start? How to structure? </br>
+**[Date]** 2026-04-01 </br>
+**[Time]** </br>
+**[Video]**  
 
-**Tasks** </br>
+**[Tasks]** </br>
 _creating python file</br>
 _install python extensions for vscode</br>
 _repeating basics</br>
 _learning tkinter</br> 
 _creating first window
 
-**Problems**</br>
+**[Problems]**</br>
 _where to start</br>
 _finding the right tutorials</br>
 _some spelling mistakes</br>
 _code runner extension needed a different setting (python -> python3)</br>
 _forgot how to commit and push to GitHub
 
-**Learnings**</br>
+**[Learnings]**</br>
 _Basics Python, Basics Git, tkinter
 
-**Questions**</br>
-1. ChatGbt
+**[Questions]**</br>
+_ChatGbt</br>
 Was ist tkinter.font?</br>
 kann ich auch meine eigene schrift in ein programm einbetten?</br>
 kannst du mir customTkinter genauer erklären? </br>
@@ -58,37 +188,37 @@ wie mache ich nochmal einen absatz? \n aber wo?</br>
 welchen code runner?</br>
 warum geht das nicht? name="peter" tk._test("peter") bzw. was schreibe ich in die klammern?</br>
 was gibt es bei tkinter alles für Widgets?</br>
-2. Google</br>
+_Google</br>
 comment in python</br>
 Tkinter Tk</br>
-what is gui in python
-3. Youtube</br>
+what is gui in python</br>
+_Youtube</br>
 https://www.youtube.com/watch?v=k_ToCC4-pe8 </br>
 https://www.youtube.com/watch?v=yYALsys-P_w </br>
 https://www.youtube.com/watch?v=d2HT7i9OrHE&list=PL_pqkvxZ6ho23EXCx7HJtOaUZ-mDl_GXY </br>
 https://www.youtube.com/watch?v=idYXmWVESeo&list=PL_pqkvxZ6ho23EXCx7HJtOaUZ-mDl_GXY&index=2 </br>
----
 
+---
 ## Day 00
 
-**Title:** how to set up? </br>
-**Date:** 2026-03-30 </br>
-**Time:** 1:30 hours</br>
-**Video:**  
+**[Title]** how to set up? </br>
+**[Date]** 2026-03-30 </br>
+**[Time]** 1:30 hours</br>
+**[Video]**  
 
-**Tasks** </br>
+**[Tasks]** </br>
 _setting up Git</br>
 _setting GitHub</br>
 _setting up Youtube</br>
 _setting up OBS (streaming)
 
-**Problems**</br>
+**[Problems]**</br>
 _none
 
-**Learnings**</br>
+**[Learnings]**</br>
 _Basics in Git, GitHub, OBS
 
-**Questions**</br>
+**[Questions]**</br>
 1. ChatGbt
 - wie kann ich homebrew installieren? terminal?
 - how to check which port
