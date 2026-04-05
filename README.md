@@ -18,6 +18,55 @@ one section per day including:
 8. Questions
 
 ---
+## Day 05
+
+**[Title]** How to style ttk?</br>
+**[Date]** 2026-04-05 </br>
+**[Time]** </br>
+**[Video]**  
+
+**[Tasks]** </br>
+_key/ value Testing-Loops for objects</br>
+_key/ value Testing-Loops for Dictionaries</br>
+_experimenting with different keys</br>
+_styling ttk</br>
+_repetition
+
+**[Problems]**</br>
+_comprehension questions for loop</br>
+_Styling ttk widgets is different from tk widgets</br>
+_checking keys/values is different for objects than for directories
+
+**[Learnings]**</br>
+_fonts are objects</br>
+_how to style ttk</br>
+_how to center widget</br>
+_methods (.items, .keys, .actual)
+
+**[Questions]**</br>
+_ChatGbt</br>
+wie baue ich am besten eine ordnerstruktur für ein python projekt?</br>
+erkläre mir die keys methode genauer</br>
+das erste .keys funktioniert, das zweite nicht. warum ist das so?</br>
+das habe ich verstanden aber noch korrektur habe ich diese meldung</br>
+kannst du mir den code schritt für schritt erklären?</br>
+was ist items? warum brauche ich zwei variablen?</br>
+.items gibt mir also den value eines dicitionaries und acutal den entsprechenden key und so entsteht das paar?</br>
+okay aber wieso genau brauche ich dann .items wenn beide im prinzip die selbe ausgabe haben?</br>
+hier wäre item aber überflüssig? for item, value in label1.keys().item(): print(item,':', value)</br>
+kannst du nochmal alles übersichtlicher zusammenfassen?</br>
+die beiden methoden .keys, .items funktionieren nur bei dictionaries, deswegen legt man vorher bei einem objekt mit hilfe von .actual zunächst ein dictionary an?</br>
+warum das funktioniert nicht?</br>
+warum kann ich bei ttk label keine hintergrundfarbe/schriftfarbe verändern?</br>
+was habe ich hier übersehen?</br>
+bedeutet das font-color? foreground</br>
+was ist clam?</br>
+ich habe gerade eine festgelegte schriftgröße. kann ich die mit der fenstergröße wachsen lassen oder ist das nicht möglich mit python?</br>
+_Google</br>
+python .keys</br>
+_Youtube</br>
+
+---
 ## Day 04
 
 **[Title]** How to layer elements?</br>
