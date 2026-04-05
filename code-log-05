@@ -1,0 +1,54 @@
+import tkinter as tk
+from tkinter import ttk
+from PIL import Image, ImageTk
+import tkinter.font as tkFont
+
+root = tk.Tk()
+root.title('hello')
+
+screenwidth = root.winfo_screenwidth()
+screenheight = root.winfo_screenmmheight()
+
+width = int(screenwidth * 0.1)
+height = int(screenheight * 2)
+root.geometry(f'{width}x{height}')
+root.minsize(width=200, height=300)
+
+font1 = tkFont.Font(family='continua regular', size=50)
+
+image = Image.open('assets/images/logo.png').resize((200,150))
+photo = ImageTk.PhotoImage(image)
+
+style = ttk.Style()
+style.theme_use('clam')
+style.configure('label2.TLabel', background='#ff00e4', foreground='#00ff00', font=font1)
+ 
+
+label2= ttk.Label(root, text='world', justify='center', style='label2.TLabel', anchor='center')
+label2.pack(expand=True, fill='both')
+
+#testschleifen für element-eigenschaften:
+
+#label 1 ist ein tkinter widget und verhält sich wie ein Dictionary
+#es kann die methode .key angewendet werden
+#for item in label2.keys():
+#item gibt hier alle keys an die in einem Widget verfügbar sind
+#der string : hilf hier für die übersichtlichkeit und erzeugt den doppelpunkt in der ausgabe 
+#hier werden die keys als item angezeigt, welche im label1 bereits verwendet werden
+#    print(item,':', label2[item])
+
+#print('------------')
+#keys  methode funktioniert nur für Dictionaries, nicht für objekte
+#fonts sind objekte. es muss erst in ein Dictionary umgewandelt werden
+#hierfür nutzen wir .actual:
+#for key, value in font1.actual().items():
+#    print(key, ':', value)
+#.items wandelt das dictionary anschließend in tuples um mit den key und values des Dictionaries
+#deswegen werden zwei variablen genutzt um beide anzusprechen
+#anstelle von .items könnte man auch hier wieder .keys anwenden:
+#for key in font1.actual().keys():
+#    print(key, ':', font1[key])
+#besser ist aber variante item, da .keys nicht zuverlässig funktioniert. es kann ein objekt nicht
+#dauerhaft umwandeln
+
+root.mainloop()
