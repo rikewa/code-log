@@ -21,7 +21,7 @@ style.map('button1.TButton', background=[('active', '#ff00e4'), ('pressed', '#00
 
 #button2: 
 style.configure('button2.TButton', padding='10', background='#00ff00')
-style.map('button2.TButton', background=[('active', '#00ff00'), ('pressed', '#ff00e4')])
+style.map('button2.TButton', background=[('active', '#ff00e4'), ('pressed', '#ff00e4')])
 
 
 #state option zb. für start einer Funktion ab einer bestimmten bedingung
