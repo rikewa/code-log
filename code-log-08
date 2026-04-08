@@ -1,0 +1,35 @@
+import tkinter as tk
+from tkinter import ttk
+from PIL import Image, ImageTk
+
+# pink: #ff00e4 grün:#00ff00
+
+
+def entry_info():
+    ttk.Label(root, text='oops :–––––)', background='#00ff00').pack(pady=5)
+    ttk.Label(root, text=entry1.get()).pack(pady=5)
+
+
+#style.configure('root.TRoot', background='#00ff00')
+
+root = tk.Tk()
+root.geometry('300x450')
+root.configure(bg='#00ff00')
+root.title('secret keeper')
+
+style= ttk.Style()
+style.theme_use('clam')
+style.configure('entry1.TEntry', fieldbackground='#ff00e4')
+
+
+label1 = ttk.Label(root, text="Tell me a secret, I will not share!", justify='left', background='#00ff00')
+label1.pack(pady=20, side='top', fill='x' )
+
+entry1 = ttk.Entry(root, justify='center', style='entry1.TEntry')
+entry1.pack(pady=5)
+entry1.insert(0, 'type here')
+
+button1 = ttk.Button(root, text='send', command=entry_info)
+button1.pack(pady=5)
+
+root.mainloop()
