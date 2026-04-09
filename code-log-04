@@ -7,8 +7,8 @@ root = tk.Tk()
 root.resizable(True,True)
 
 
-screenwidth = root.winfo_screenmmwidth()
-screenheight= root.winfo_screenmmheight()
+screenwidth = root.winfo_screenwidth()
+screenheight= root.winfo_screenheight()
 
 width = int(screenwidth * 0.7)
 height = int(screenheight * 0.5)

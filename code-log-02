@@ -52,7 +52,7 @@ root = tk.Tk()
 root.title("Timer")
 
 #hier finde ich die Bildschirmhöhe/Breite heraus
-swidth = root.winfo_screenmmwidth()
+swidth = root.winfo_screenwidth()
 sheight = root.winfo_screenheight()
 
 #hier berechne ich die Fenstergröße im Verhälnis
