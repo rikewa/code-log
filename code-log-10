@@ -1,0 +1,85 @@
+import tkinter as tk
+from tkinter import ttk
+from PIL import Image, ImageTk
+import random
+ # pink: #ff00e4 grün:#00ff00
+
+
+root = tk.Tk()
+root.title('the clique')
+#damit hole ich das fenster nach vorne 
+root.attributes('-topmost',True)
+root.configure(background='#00ff00')
+
+def open_window():
+    new_window = tk.Toplevel(root)
+    new_window.title('the clique')
+    new_window.configure(background='#00ff00')
+
+    width = 200
+    height = 150 
+    screenwidth= root.winfo_screenwidth()
+    screenheight= root.winfo_screenheight()
+
+    x = random.randint(0, screenwidth - width)
+    y = random.randint(0, screenheight - height)
+
+    new_window.geometry(f'{width}x{height}+{x}+{y}')
+    labelnw = ttk.Label(new_window, text='CLICK', style='label.TLabel')
+    labelnw.pack(pady=10)
+    style.configure('label.TLabel', background='#00ff00', foreground='#ff00e4',font=('continua',50) )
+
+swidth= root.winfo_screenwidth()
+sheight= root.winfo_screenheight()
+
+#höhe und breite des Fensters wird im Bildschirm-Verhältnis berechnet
+width = int(swidth * 0.1)
+height = int(sheight *0.4)
+
+#fenster wird zentriert vom bildschirm platziert 
+position_x = int((swidth-width)/2)
+position_y = int((sheight-height)/2)
+
+root.geometry(f'{width}x{height}+{position_x}+{position_y}')
+
+image = Image.open('assets/images/logo.png').resize((80,40))
+photo = ImageTk.PhotoImage(image)
+
+style= ttk.Style()
+style.theme_use('alt')
+style.configure('button1.TButton',relief='flat', borderwidth=15, background='#ff00e4', foreground='white')
+style.map('button1.TButton', foreground=[('active','#ff00e4')])
+style.configure('button2.TButton',relief='groove', borderwidth=15, background='#ff00e4',foreground='white')
+style.map('button2.TButton', foreground=[('active','#ff00e4')])
+style.configure('button3.TButton',relief='raised', borderwidth=15,background='#ff00e4',foreground='white')
+style.map('button3.TButton', foreground=[('active','#ff00e4')])
+style.configure('button4.TButton',relief='ridge', borderwidth=15,background='#ff00e4',foreground='white')
+style.map('button4.TButton', foreground=[('active','#ff00e4')])
+style.configure('button5.TButton',relief='solid', borderwidth=15,background='#ff00e4',foreground='white')
+style.map('button5.TButton', foreground=[('active','#ff00e4')])
+style.configure('button6.TButton',relief='sunken', borderwidth=15,background='#ff00e4',foreground='white')
+style.map('button6.TButton', foreground=[('active','#ff00e4')])
+
+#label1 = ttk.Label(root, image=photo, relief='flat', borderwidth=5)
+#label1.pack(pady=10)
+
+button1 = ttk.Button(root, text='click', style='button1.TButton', command=open_window,cursor='hand2')
+button1.pack(pady=10)
+
+button2 = ttk.Button(root,text='click', style='button2.TButton',command=open_window, cursor='hand2')
+button2.pack(pady=10)
+
+button3 = ttk.Button(root,text='click', style='button3.TButton',command=open_window,cursor='hand2')
+button3.pack(pady=10)
+
+button4 = ttk.Button(root,text='click', style='button4.TButton',command=open_window,cursor='hand2')
+button4.pack(pady=10)
+
+button5 = ttk.Button(root,text='click', style='button5.TButton',command=open_window,cursor='hand2')
+button5.pack(pady=10)
+
+button6 = ttk.Button(root,text='click', style='button6.TButton',command=open_window,cursor='hand2')
+button6.pack(pady=10)
+
+
+root.mainloop()
