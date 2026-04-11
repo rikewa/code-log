@@ -1,0 +1,121 @@
+import tkinter as tk
+from tkinter import *
+from tkinter import messagebox
+from tkinter import ttk
+import time
+import datetime
+
+ # pink: #ff00e4 grün:#00ff00
+
+
+root = tk.Tk()
+root.title('Time')
+root.attributes('-topmost', True)
+root.configure(background='#00ff00')
+
+
+#_____window settings:
+swidth = root.winfo_screenwidth()
+sheight = root.winfo_screenheight()
+
+width = int(swidth * 0.15)
+height = int(sheight *0.2)
+
+position_x = int((swidth-width)/2)
+position_y = int((sheight-height)/2)
+
+root.geometry(f'{width}x{height}+{position_x}+{position_y}')
+#______________________
+
+#______style settings:
+style = ttk.Style()
+style.theme_use('alt')
+
+style.configure('timebutton.TButton', background='#ff00e4', font=('continua', 15))
+style.configure('date.TLabel', background='#00ff00', font=('continua', 15))
+
+#________Datum:
+frame1= tk.Frame(root)
+frame1.pack(expand=True, pady=10)
+
+date = datetime.datetime.now()
+date_format = date.strftime('%A, %d. %B %Y')
+
+date_string = tk.StringVar()
+date_string.set(date_format)
+
+date_label= ttk.Label(frame1, textvariable=date_string, style='date.TLabel')
+date_label.pack(side='top', expand=True, fill='both')
+#_________________
+
+#__________Timer:
+
+frame2= tk.Frame(root)
+frame2.pack(expand=True, pady=10)
+
+#variablen definieren
+hour_string = StringVar() 
+minute_string = StringVar()
+#optional:
+second_string = StringVar()
+
+#setting default values for strings:
+hour_string.set('00')
+minute_string.set('00')
+
+#input as entry
+hours_entry = ttk.Entry(frame2, width=5, font=('continua', 25), textvariable=hour_string, justify='center')
+hours_entry.pack(side='left')
+
+minute_entry = ttk.Entry(frame2,width=5, font=('continua', 25), textvariable=minute_string, justify='center')
+minute_entry.pack(side='left')
+
+#building the function:
+
+def run_timer():
+    try: 
+#hier werden die eingegeben werte (aktuell strings) in Zahlen umgewandelt und multipipliziert (integer)
+        timer = int(hour_string.get())*3600+ int(minute_string.get())*60
+#sollten keine Zahlen eingegeben sein, fehlermeldung
+    except:
+#hier noch create Laben einfügen um konsolen-ausgabe zu umgehen
+        print('incorrect values')
+        return
+
+#jetzt beginnt die eigentliche countdown funktion: 
+# countdown-funktion inherhalb der funktion
+    def countdown():
+#nonlocal dient hier als Schlüsselword um die Variable der vorherigen Funktion anzusprechen ohne sie neu definieren zu müssen
+        nonlocal timer
+#wenn der timer auf 0 spring erscheint die messagebox
+        if(timer == 0):
+            messagebox.showinfo('', 'time is over!')
+            return
+#hier werden die eingegeben in integer umgewandelten zahlen zerlegt
+#divmod macht 2 dinge: divmod(a,b)
+#a = b/a
+#b = was bleibt übrig
+#ergebnis ist ein Tuple welches 'quotienten' beinhaltet und 'remainder/rest'
+        totalHours, remainder = divmod(timer, 3600)
+#hier nehme ich den rest der vorheringen rechnung und zerlege ihn weiter 
+        totalMinutes, seconds = divmod(remainder, 60)
+
+#eine andere lösung wäre:
+#totalHours = timer // 3600
+#totalMinutes = (timer % 3600) // 60
+
+        hour_string.set(f'{totalHours:02d}')
+        minute_string.set(f'{totalMinutes:02d}')
+
+        timer -= 1
+        root.after(1000, countdown)
+#funktion schließen    
+    countdown()
+
+frame3 =tk.Frame()
+frame3.pack(expand=True, pady=10)
+
+timeButton = ttk.Button(frame3, text='set time', width=10, command=run_timer, style='timebutton.TButton')
+timeButton.pack(side='bottom')
+
+root.mainloop()
