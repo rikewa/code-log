@@ -1,0 +1,148 @@
+import tkinter as tk
+from tkinter import ttk
+# *stands for all
+from tkinter import *
+from tkinter import messagebox
+import time
+import datetime
+
+#_____global Variables:
+timer_running = None
+
+#_________creating window:
+root = tk.Tk()
+root.attributes('-topmost', True)
+root.title('timer')
+root.configure(background='#00ff00')
+#______________________
+ 
+
+#___________window settings:
+swidth = root.winfo_screenwidth()
+sheight = root.winfo_screenheight()
+
+width = int(swidth*0.15)
+height = int(sheight*0.3)
+
+position_x = int((swidth - width)/2)
+position_y = int((sheight - height)/2)
+
+#? formated string to give back string (currently integers):
+root.geometry(f'{width}x{height}+{position_x}+{position_y}')
+#__________________________
+
+
+#___________style settings:
+ # pink: #ff00e4 grün:#00ff00
+
+style = ttk.Style()
+style.theme_use('alt')
+
+style.configure('datelabel.TLabel', background='#00ff00', foreground='#ff00e4')
+style.configure('button3.TButton',relief='raised', borderwidth=10,background='#ff00e4',foreground='white')
+style.map('button3.TButton', foreground=[('active','#ff00e4')])
+
+#___________________________
+
+
+#______date:
+date = datetime.datetime.now()
+date_format = date.strftime('%A, %d. %B %Y')
+#text variable generieren um sie ins label einzufügen:
+datestring = tk.StringVar()
+datestring.set(date_format)
+
+datelabel= ttk.Label(root, textvariable=datestring, style='datelabel.TLabel')
+datelabel.pack(pady=20)
+#______________
+
+#_____Timer:
+hourString = tk.StringVar()
+minuteString = tk.StringVar()
+secondString = tk.StringVar()
+
+#setting default values:
+hourString.set('01')
+minuteString.set('00')
+secondString.set('00')
+
+hourentry = ttk.Entry(root, textvariable=hourString, justify='center', width=5)
+hourentry.pack()
+
+minuteentry = ttk.Entry(root, textvariable=minuteString, justify='center', width=5)
+minuteentry.pack()
+
+secondentry = ttk.Entry(root, textvariable=secondString, justify='center', width=5)
+secondentry.pack()
+
+#____ error Label:
+errorlabel = ttk.Label(root, text='', style='datelabel.TLabel')
+errorlabel.pack(pady=5)
+
+#___Timer Function:
+
+def run_timer():
+#error label clearen
+    errorlabel.configure(text='')
+    try:
+        timer = int(hourString.get()) *3600 + int(minuteString.get()) * 60 + int(secondString.get())
+    except Exception as e:
+        print(e)
+#hier label hinzufügen und timer zurücksetzen auf 00
+        errorlabel.configure(text='invalid value')
+        hourString.set('01')
+        minuteString.set('00')
+        secondString.set('00')
+        return
+
+    def countdown():
+        global timer_running
+        nonlocal timer
+        timer -= 1
+        
+        totalHours, remainder = divmod(timer, 3600)
+        totalMinutes, seconds = divmod(remainder, 60)
+        totalSeconds = seconds
+
+        hourString.set(f'{totalHours:02d}')
+        minuteString.set(f'{totalMinutes:02d}')
+        secondString.set(f'{totalSeconds:02d}')
+        if (timer == 0):
+            messagebox.showinfo('timer','time is over', parent=root)
+            timer_running = None
+            return
+    
+        timer_running = root.after(1000, countdown)
+    countdown()
+
+def stop_timer():
+    global timer_running
+
+    if timer_running is not None:
+        root.after_cancel(timer_running)
+        timer_running = None
+
+    hourString.set('01')
+    minuteString.set('00')
+    secondString.set('00')
+    return
+
+
+
+
+#muss ich eine funktion immer schließen?
+
+#______timer button:
+
+timebutton = ttk.Button(root, text='set timer', command=run_timer, style='button3.TButton', cursor='hand2')
+timebutton.pack(pady=5)
+
+#pausebutton = ttk.Button(root, text='pause')
+#pausebutton.pack(pady=5)
+
+stopbutton = ttk.Button(root, text='stop', command=stop_timer, style='button3.TButton', cursor='hand2')
+stopbutton.pack(pady=5)
+
+
+#_____starting Program:
+root.mainloop()
