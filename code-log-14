@@ -1,0 +1,212 @@
+import tkinter as tk 
+from tkinter import ttk
+from tkinter import *
+from tkinter import messagebox
+from PIL import Image, ImageTk
+import time
+import datetime
+
+#-----------global variables
+timer_running = None
+timer = 0
+#-----------
+
+# pink: #ff00e4 grün:#00ff00
+
+#---------
+root = tk.Tk()
+root.attributes('-topmost', True)
+root.title('time')
+root.configure(background='#ff00e4')
+#-----------
+
+#----window settings
+swidth= root.winfo_screenwidth()
+sheight= root.winfo_screenheight()
+
+width = int(swidth * 0.2)
+height = int(sheight * 0.37)
+
+position_x = int((swidth - width)/2)
+position_y = int((sheight - height)/2)
+
+root.geometry(f'{width}x{height}+{position_x}+{position_y}')
+#----------------------
+
+#-------style settings
+style = ttk.Style()
+style.theme_use('alt')
+
+#style.configure('button1.TButton')
+style.configure('button4.TButton',relief='ridge', borderwidth=8, background='#ff00e4',foreground='#00ff00', width=25, font=('continua', 12))
+style.map('button4.TButton', foreground=[('active','#00ff00')])
+
+style.configure('basiclabel.TLabel', background='#00ff00', foreground = '#ff00e4', font=('continua', 12))
+style.configure('basicframe.TFrame', background='#00ff00')
+style.configure('timerEntry.TEntry', foreground='#ff00e4')
+#-----------
+
+#-----------Date
+frame1= ttk.Frame(root, style='basicframe.TFrame')
+frame1.pack(pady=10,fill='x', side='top')
+
+date = datetime.datetime.now()
+
+dateFormat = date.strftime('%d. %B %Y')
+dateString = tk.StringVar()
+dateString.set(dateFormat)
+
+dayFormat = date.strftime('%A:')
+dayString = tk.StringVar()
+dayString.set(dayFormat)
+
+dayLabel = ttk.Label(frame1, textvariable=dayString, style='basiclabel.TLabel')
+dayLabel.pack(padx=10, side='left')
+
+dateLabel = ttk.Label(frame1, textvariable=dateString, style='basiclabel.TLabel')
+dateLabel.pack(padx=10, side='right')
+#------------------
+
+#----------- error Label:
+frame2 = ttk.Frame(root, style='basicframe.TFrame')
+frame2.pack(pady=10,fill='x', side='top')
+
+errorLabel = ttk.Label(frame2, text='', style='basiclabel.TLabel')
+errorLabel.pack()
+#------------------------
+
+#----------- timer:
+frame3 = ttk.Frame(root, style='basicframe.TFrame')
+frame3.pack(pady=10,fill='x', side='top')
+
+centerframe = ttk.Frame(frame3)
+centerframe.pack(pady=10)
+
+hourString = tk.StringVar()
+minuteString = tk.StringVar()
+secondString = tk.StringVar()
+
+#default settings
+hourString.set('00')
+minuteString.set('60')
+secondString.set('00')
+
+hourEntry = ttk.Entry(centerframe, textvariable=hourString, style='timerEntry.TEntry', justify='center', width=5, font=('continua', 30))
+hourEntry.pack(side='left')
+
+minuteEntry = ttk.Entry(centerframe, textvariable=minuteString, style='timerEntry.TEntry', justify='center', width=5, font=('continua', 30))
+minuteEntry.pack(side='left')
+
+secondEntry = ttk.Entry(centerframe, textvariable=secondString, style='timerEntry.TEntry', justify='center', width=5, font=('continua', 30))
+secondEntry.pack(side='left')
+
+#--------------------- functions
+
+def run_timer():
+    global timer_running, timer
+    errorLabel.configure(text='')
+
+    if timer == 0: 
+        try:
+            timer = int(hourString.get())*3600 + int(minuteString.get())*60 + int(secondString.get())
+        except:
+            errorLabel.configure(text='only numbers :-(')
+            hourString.set('00')
+            minuteString.set('60')
+            secondString.set('00')
+            return
+        
+        if timer == 0:
+            messagebox.showinfo('', 'time is over!')
+            timer_running = None
+
+            hourString.set('00')
+            minuteString.set('60')
+            secondString.set('00')
+            return
+    
+    def countdown():
+        global timer_running, timer
+#hier wird der eingegebene wert des entries um 1 subtrahiert
+        timer -= 1
+
+        totalhours, rest = divmod(timer, 3600)
+        totalminutes, seconds = divmod(rest, 60)
+        totalseconds = seconds
+
+#formatierung der oben berechneten integer werte in strings
+        hourString.set(f'{totalhours:02d}')
+        minuteString.set(f'{totalminutes:02d}')
+        secondString.set(f'{totalseconds:02d}')
+
+        if timer==0:
+            messagebox.showinfo('', 'time is over')
+            timer_running = None
+
+            hourString.set('00')
+            minuteString.set('60')
+            secondString.set('00')
+            return
+        
+# root.after führt die countdown funktion alle 1000millisekunden aus(1sek)
+# wenn der wert auf 0 fällt wird if funktion ausgeführt
+# durch die variable timer_running wird sich der aktuelle wert gemerkt und ich kann die später nocheinmal ansprechen
+        timer_running= root.after(1000, countdown)
+    countdown()
+
+def pause_timer():
+    global timer_running 
+
+    if timer_running is not None:
+        root.after_cancel(timer_running)
+        timer_running = None
+
+def stop_timer():
+    global timer_running, timer
+
+    if timer_running is not None:
+        root.after_cancel(timer_running)
+        timer_running = None
+
+    timer = 0
+
+    hourString.set('00')
+    minuteString.set('60')
+    secondString.set('00')
+    return
+#------------------------------
+
+#--------time button
+frame6= ttk.Frame(root, style='basicframe.TFrame')
+frame6.pack(pady=10,fill='x', side='top')
+
+center6 = ttk.Frame(frame6)
+center6.pack(pady=10)
+
+timerButton = ttk.Button(center6, text='time', command=run_timer, style='button4.TButton')
+timerButton.pack()
+#-----------------
+
+#-------------pause button
+frame5= ttk.Frame(root, style='basicframe.TFrame')
+frame5.pack(pady=10,fill='x', side='top')
+
+center5 = ttk.Frame(frame5)
+center5.pack(pady=10)
+    
+pauseButton = ttk.Button(center5, text='pause', command=pause_timer, style='button4.TButton')
+pauseButton.pack()
+#-------------------------
+
+#------------reset button
+frame4= ttk.Frame(root, style='basicframe.TFrame')
+frame4.pack(pady=10,fill='x', side='top')
+
+center4= ttk.Frame(frame4)
+center4.pack(pady=10)
+
+stopButton = ttk.Button(center4, text='reset', command=stop_timer, style='button4.TButton')
+stopButton.pack()
+#-------------------------
+
+root.mainloop()
