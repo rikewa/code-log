@@ -1,0 +1,104 @@
+import tkinter as tk
+from tkinter import ttk 
+import random
+# pink: #ff00e4 grün:#00ff00
+
+root = tk.Tk()
+root.geometry('500x200')
+root.title('Introduction')
+root.attributes('-topmost',True)
+root.configure(padx=10, pady=10, background='#00ff00')
+
+style = ttk.Style()
+style.theme_use('alt')
+
+style.configure('alllabel.TLabel', background='#00ff00', foreground='#ff00e4')
+style.configure('button6.TButton',relief='sunken', borderwidth=8,background='#ff00e4',foreground='white')
+style.map('button6.TButton', foreground=[('active','#ff00e4')])
+style.configure('send.TButton', background='#ff00e4', foreground='white')
+style.map('send.TButton', foreground=[('active','#ff00e4')], background=[('active','white')])
+
+ 
+#die spalte 0 hat nun ein gewicht von 1, der gesamt-mögliche platz wird eingenommen
+#wie bei pack expand= true
+#root.columnconfigure(0, weight=1)
+#root.columnconfigure(1, weight=1)
+#root.columnconfigure(2, weight=1)
+#root.columnconfigure(3, weight=2)
+root.rowconfigure(2, weight=1)
+
+for i in range (4):
+    root.columnconfigure(i, weight=1, uniform='a')
+
+def say_hello():
+    entry_text = 'hallo :–)'
+    ttk.Label(root, text= entry_text, style='alllabel.TLabel').grid(column=3, row=0, sticky='nw')
+
+def say_name():
+    entry_text = 'hallo ' + entry2.get()
+    ttk.Label(root, text= entry_text, style='alllabel.TLabel').grid(column=3, row=1, sticky='nw')
+
+def say_hobbies():
+    entry_text = 'cool! ' + entry3.get("1.0", "end").strip()
+    ttk.Label(root, text= entry_text, style='alllabel.TLabel').grid(column=3, row=2, sticky='nw')
+
+#----------first row 
+label1 = ttk.Label(root, text='say hello:', style='alllabel.TLabel')
+label1.grid(column=0, row=0, sticky='ne')
+
+entry1 = ttk.Entry(root)
+entry1.grid(column=1, row=0, sticky='we', padx=5, pady=5)
+
+button1 = ttk.Button(root, text='send', command=say_hello, style='send.TButton', cursor='hand2')
+button1.grid(column=2, row=0, sticky='we')
+#-------------------
+
+#-----------second row
+label2 = ttk.Label(root, text= 'your name:', style='alllabel.TLabel')
+label2.grid(column=0, row=1, sticky='ne')
+
+entry2 = ttk.Entry(root)
+entry2.grid(column=1, row=1, sticky='we', padx=5, pady=5)
+
+button2 = ttk.Button(root, text='send', command=say_name, style='send.TButton', cursor='hand2')
+button2.grid(column=2, row=1, sticky='we')
+#-------------------
+
+#------------third row
+ 
+label3 = ttk.Label(root, text='your hobbies:', style='alllabel.TLabel')
+label3.grid(column=0, row=2, sticky='ne')
+
+entry3 = tk.Text(root, height=5, wrap="word")
+entry3.grid(column=1, row=2, sticky='nsew', padx=5, pady=5)
+
+button3 = ttk.Button(root, text='send', command=say_hobbies, style='send.TButton', cursor='hand2')
+button3.grid(column=2, row=2, sticky='nwe')
+#-----------------
+
+
+# ---------------
+
+widgets = [label1, label2, label3, entry1, entry2, entry3, button1, button2, button3]
+
+def randomize():
+    for w in widgets:
+        w.grid_forget()
+#leere liste erzeugen:
+    positions= []
+#schleife für rows(ich habe 3 zeilen 0,1,2 ):
+    for r in range(3):
+#schleife for columns (ich habe 4 spalten 0,1,2,3):
+        for c in range(4):
+#hier erstelle ich ein tuple
+#mit append hänge ich etwas an eine liste an
+            positions.append((r,c))
+    random.shuffle(positions)
+
+    for w, (r, c) in zip(widgets, positions):
+        w.grid(row=r, column = c)
+
+radomize= ttk.Button(root, text='???', command=randomize, style= 'button6.TButton', cursor='hand2')
+radomize.grid(column=3, row=7, pady=10)
+
+root.mainloop()
