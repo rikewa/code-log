@@ -1,0 +1,70 @@
+import tkinter as tk
+from tkinter import ttk
+
+root = tk.Tk()
+root.geometry('250x350')
+root.attributes('-topmost', True)
+root.title('Hello!')
+# pink: #ff00e4 grün:#00ff00
+
+root.configure(padx=20, pady=20, background='#ff00e4')
+
+style= ttk.Style()
+style.theme_use('alt')
+
+def check_button():
+    done.configure(state='disabled')
+    button1.configure(state='disabled')
+    rbutton1.configure(state='disabled')
+    rbutton2.configure(state='disabled')
+    rbutton3.configure(state='disabled')
+    rbutton4.configure(state='disabled')
+
+def say_name():
+    nametext = 'Hello ' + entry1.get() + ' :–)'
+    sayname.configure(text=nametext)
+
+#label frame hat die selbe funktion wie ein Frame wdget, nur dass zusätzlich noch ein label hinzugefügt werden kann
+labelFrame = ttk.LabelFrame(root, text='your name:', labelanchor='n', cursor='hand2')
+labelFrame.grid(column=0, row=1, sticky='nw')
+
+
+entry1 = ttk.Entry(labelFrame)
+entry1.grid(column=0, row=1)
+
+button1 = ttk.Button(labelFrame, text='send', command=say_name)
+button1.grid(column=0, row=2)
+
+sayname= ttk.Label(labelFrame)
+sayname.grid(column=0, row=3, sticky='w', pady=5)
+
+
+selected = tk.StringVar()
+
+frame3= ttk.Frame(root, cursor='man')
+frame3.grid(column=0, row=2, pady=20, sticky='nw')
+
+animals = ttk.Label(frame3, text='your favorite animal:')
+animals.grid(column=0, row=0)
+
+rbutton1 = ttk.Radiobutton(frame3, text='dogs', variable=selected, value='option1')
+rbutton1.grid(column=0,row=1, sticky='w')
+
+rbutton2 = ttk.Radiobutton(frame3, text='dogs', variable=selected, value='option1')
+rbutton2.grid(column=0,row=2, sticky='w')
+
+rbutton3 = ttk.Radiobutton(frame3, text='dogs', variable=selected, value='option1')
+rbutton3.grid(column=0,row=3, sticky='w')
+
+rbutton4 = ttk.Radiobutton(frame3, text='other', variable=selected, value='option4')
+rbutton4.grid(column=0,row=4, sticky='w')
+
+doneInt = tk.IntVar()
+doneInt.set(0)
+
+done = ttk.Checkbutton(root, text= 'done', command=check_button, variable=doneInt, cursor='boat')
+done.grid(column=0, row=5, rowspan=2, sticky='we')
+
+
+
+root.mainloop()
