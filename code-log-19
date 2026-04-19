@@ -1,0 +1,91 @@
+import tkinter as tk 
+from tkinter import ttk
+from PIL import Image, ImageTk
+import time
+
+# pink: #ff00e4 grün:#00ff00
+
+
+#repetition 
+
+root = tk.Tk()
+root.title('please help')
+root.attributes('-topmost', True)
+root.configure(background='#ff00e4', pady=10, padx=10)
+root.columnconfigure(0, weight= 1)
+
+#---------window settings:
+swidth = root.winfo_screenwidth()
+sheight = root.winfo_screenheight()
+
+width = int(swidth * 0.19)
+height = int(sheight * 0.5)
+
+positions_x = int((swidth-width)/2)
+positions_y = int((sheight - height)/2)
+
+root.geometry(f'{width}x{height}+{positions_x}+{positions_y}')
+
+#------------------------
+
+#---------image:
+image = Image.open('assets/images/dog1.jpg')
+image.thumbnail((200,200))
+photo = ImageTk.PhotoImage(image)
+
+
+
+#---------style settings:
+style = ttk.Style()
+style.theme_use('alt')
+style.configure('labels.TLabel', background='#ff00e4', font=('', 20))
+style.configure('labels2.TLabel', font=('', 20))
+style.configure('button6.TButton',relief='sunken', borderwidth=8,background='#00ff00', font=('', 20))
+style.map('button6.TButton', foreground=[('active','#00ff00')])
+style.configure('bar.Horizontal.TProgressbar', background='#00ff00', foreground='#ff00e4')
+style.configure('healine.TLabelframe.Label', font=('', 60), foreground='#ff00e4')
+#----------------------
+
+#-----------content
+headline = ttk.Labelframe(root, text='BERLIN', style='healine.TLabelframe', labelanchor='n')
+headline.grid(column=0, row=0, sticky='we')
+
+intro = ttk.Label(headline, text="I'm looking for a room!", style='labels2.TLabel', anchor='center')
+intro.grid(column=0, row=0, sticky='we', padx=5)
+
+labelframe1 = ttk.Labelframe(root, text='until', style='healine.TLabelframe', labelanchor='n')
+labelframe1.grid(column=0, row=1, sticky='we', pady=10)
+
+juli = ttk.Label(labelframe1, text='Jul ', style= 'labels2.TLabel')
+juli.grid(column=0, row=0,padx=5)
+
+bar1 = ttk.Progressbar(labelframe1, orient='horizontal', length='200', mode='determinate', style='bar.Horizontal.TProgressbar')
+bar1.grid(column=1, row=0, sticky='we')
+
+september = ttk.Label(labelframe1, text=' Sept ', style= 'labels2.TLabel')
+september.grid(column=3, row=0, padx=5)
+
+
+
+def load_progress():
+    bar1['value'] += 5
+
+    if bar1['value'] == 100:
+        bar1['value'] = 0
+
+    root.after(400, load_progress)   
+    
+load_progress()
+
+
+sharebutton = ttk.Button(root, text='PLEASE SHARE <3', style= 'button6.TButton')
+sharebutton.grid(column=0, row=2, pady=10, ipadx=10)
+
+hund1 = ttk.Label(root, image=photo)
+hund1.grid(column=0, row=5, pady=30)
+
+ps = tk.Label(root, text='(this took me 2h to code)', font=('',10), background='#ff00e4')
+ps.grid(column=0, row=6)
+
+
+root.mainloop()
