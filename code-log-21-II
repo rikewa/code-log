@@ -1,0 +1,183 @@
+import tkinter as tk
+from tkinter import ttk
+import time
+import datetime
+
+# pink: #ff00e4 grün:#00ff00
+
+
+root = tk.Tk()
+root.title('My Diary')
+root.attributes('-topmost', True)
+root.configure(pady=10, padx=10, background='#00ff00')
+
+#-----stringVar:
+selected_option = tk.StringVar()
+#------------
+
+#-------functions:
+def unlock(text, s):
+    result = ''
+# hier wird für die länge des eingegebenen textes eine schleife erstellt
+    for i in range(len(text)):
+        char = text[i]
+        if char == ' ' or char == '.' or char == '?' or char == 'ß' or char == 'ö' or char == 'ä' or char == 'ü' or char == 'Ä'or char == 'Ü' or char == 'Ö' or char == '!' or char == ','or char == '4':
+            result += char
+        elif char.isupper():
+            result += chr((ord(char) + s - 65)% 26 + 65)
+        else:
+            result += chr((ord(char) + s - 97)% 26 + 97)
+    return result 
+
+def lock(text, s):
+    result = ''
+# hier wird für die länge des eingegebenen textes eine schleife erstellt
+    for i in range(len(text)):
+        char = text[i]
+        if char == ' ' or char == '.' or char == '?' or char == 'ß' or char == 'ö' or char == 'ä' or char == 'ü' or char == 'Ä'or char == 'Ü' or char == 'Ö' or char == '!' or char == ',' or char == '4':
+            result += char
+        elif char.isupper():
+            result += chr((ord(char) - s - 65)% 26 + 65)
+        else:
+            result += chr((ord(char) - s - 97)% 26 + 97)
+    return result 
+
+def save_option():
+    if selected_option.get() == 'lock':
+        locked_input = lock(enterText.get("1.0", "end").strip(), int(passwordEntry.get()))
+        secretLabel.delete(0, tk.END)
+        secretLabel.insert(0, locked_input)
+    elif selected_option.get() == 'unlock':
+        unlocked_input = unlock(enterText.get("1.0", "end").strip(), int((passwordEntry.get())))
+        secretLabel.delete(0, tk.END)
+        secretLabel.insert(0, unlocked_input)
+    else:
+        print('fehler')
+        return
+    
+
+def copy_paste():
+    enterText.delete('1.0', tk.END)
+    passwordEntry.delete(0, tk.END)
+    enterText.insert('1.0', secretLabel.get())
+    secretLabel.delete(0, tk.END)
+
+#---window settings:
+swidth = root.winfo_screenwidth()
+sheight = root.winfo_screenheight()
+
+width = int(swidth * 0.2)
+height = int(sheight * 0.5)
+
+position_x = int((swidth-width)/2)
+position_y = int((sheight-height)/2)
+
+root.geometry(f'{width}x{height}+{position_x}+{position_y}')
+
+root.columnconfigure(0, weight=1)
+
+root.rowconfigure(0, weight=0)  
+root.rowconfigure(1, weight=1)  
+root.rowconfigure(2, weight=0)  
+root.rowconfigure(3, weight=0)  
+root.rowconfigure(4, weight=0) 
+root.rowconfigure(5, weight=0)
+#----------------
+
+#-------------style settings:
+style = ttk.Style()
+style.theme_use('alt')
+
+style.configure('basiclabel.TLabel', background='#00ff00')
+style.configure('basicFrame.TFrame', background='#00ff00')
+style.configure('button6.TButton',relief='sunken', borderwidth=8,background='#00ff00')
+style.map('button6.TButton', foreground=[('active','#00ff00')])
+#--------------------
+
+
+#-----------header:
+headerFrame= ttk.Frame(root, style='basicFrame.TFrame')
+headerFrame.grid(column=0, row=0)
+
+    #-------------date:
+date = datetime.datetime.now()
+dateFormat = date.strftime('%A: %d. %B %Y')
+dateString = tk.StringVar(value=dateFormat)
+
+dateLabel = ttk.Label(headerFrame, textvariable=dateString, style='basiclabel.TLabel')
+dateLabel.grid(column=0, row=0)
+    #---------------
+
+    #-----------headline:
+headline = ttk.Label(headerFrame, text='My Diary', font=('', 30), style='basiclabel.TLabel')
+headline.grid(column=0, row=1, pady=5)
+#---------------------
+
+#--------------main:
+main = ttk.Labelframe(root, text='TODAY:', labelanchor='n', cursor='man')
+main.grid(column=0, row=1, sticky='nswe')
+
+main.columnconfigure(0, weight=1)
+main.rowconfigure(0, weight=1)
+
+enterText = tk.Text(main, height=15, wrap='word')
+enterText.grid(column=0, row=0, sticky='nswe')
+
+textscoll = ttk.Scrollbar(main, orient='vertical', command=enterText.yview)
+textscoll.grid(column=1, row=0)
+
+enterText.configure(yscrollcommand=textscoll.set)
+
+#-------------
+
+#----------- footer:
+footer = ttk.Frame(root, cursor='man')
+footer.grid(column=0, row=2, sticky='nswe')
+ 
+password = ttk.Label(footer, text='secret password:')
+password.grid(column=0, row=0, sticky='nsw', padx=5, pady=5)
+
+passwordEntry = ttk.Entry(footer, width=5)
+passwordEntry.grid(column=1, row=0, sticky='w')
+
+infoLabel = ttk.Label(footer, text='lock | unlock secrets:')
+infoLabel.grid(column=0, row=1, pady=5, padx=5, sticky='ns')
+
+lockRButton = ttk.Radiobutton(footer, text='lock', value='lock', variable=selected_option)
+lockRButton.grid(column=1, row=1)
+
+unlockRButton = ttk.Radiobutton(footer, text='unlock', value='unlock', variable=selected_option)
+unlockRButton.grid(column=2, row=1)
+
+actionButton = ttk.Button(root, text='save', command=save_option, style='button6.TButton', cursor='hand2')
+actionButton.grid(column=0, row=3, sticky='nswe', pady=15)
+
+#seperator1 = ttk.Separator(root)
+#seperator1.grid(column=0, row=4, sticky='we')
+
+#------------ output:
+# pink: #ff00e4 grün:#00ff00
+
+outputFrame = ttk.Frame(root, cursor='man')
+outputFrame.grid(column=0, row=5, sticky='nswe')
+
+outputFrame.columnconfigure(0, weight=1)
+
+outputLabel = ttk.Label(outputFrame, text='your secret:')
+outputLabel.grid(column=0, row=1, sticky='w', padx=5)
+
+secretLabel = ttk.Entry(outputFrame)
+secretLabel.grid(column=0, row=2, sticky='we')
+
+scollbar1 = ttk.Scrollbar(outputFrame, orient='horizontal', command=secretLabel.xview)
+scollbar1.grid(column=0, row=6)
+
+secretLabel.configure(xscrollcommand=scollbar1)
+
+copypaste = ttk.Button(root, text='copy & paste', command=copy_paste, style='button6.TButton', cursor='hand2')
+copypaste.grid(column=0, row=7, sticky='nswe',  pady=15)
+
+#--------start programm:
+
+
+root.mainloop()
