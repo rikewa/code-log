@@ -15,7 +15,7 @@ height = int(screenheight * 0.5)
 root.geometry(f'{width}x{height}')
 root.minsize(width=200, height=100)
 
-image = Image.open('logo.png').resize((250,100))
+image = Image.open('assets/images/logo.png').resize((250,100))
 photo = ImageTk.PhotoImage(image)
 
 font = tkFont.Font(family= 'continua', size=60)

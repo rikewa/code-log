@@ -1,0 +1,62 @@
+import tkinter as tk 
+from tkinter import ttk
+import random
+
+# pink: #ff00e4 grün:#00ff00
+
+root = tk.Tk()
+root.title('')
+root.attributes('-topmost', True)
+root.configure(background='#ff00e4')
+
+#------window settings:
+swidth = root.winfo_screenwidth()
+sheight = root.winfo_screenheight()
+
+width = int(swidth * 0.2)
+height = int(sheight * 0.45)
+
+position_x = int((swidth - width)/2)
+position_y = int((sheight - height)/2)
+
+root.geometry(f'{width}x{height}+{position_x}+{position_y}')
+#---------------------
+#-----------styling:
+style = ttk.Style()
+style.theme_use('alt')
+style.configure('frame1.TFrame', background='#ff00e4')
+style.configure('label1.TLabel', background='#00ff00')
+style.configure('hello.TLabel', background = '#ff00e4',font=('', 30))
+style.configure('bye.TLabel', background = '#00ff00', font=('', 30))
+#------------------
+
+#------------functions:
+def show_label(event):
+    x = random.uniform(0, 0.9)
+    y = random.uniform(0, 0.9)
+
+    hello = ttk.Label(frame1, text='hello!', style='hello.TLabel')
+    hello.place(rely=y, relx=x)
+    label1.lift()
+
+def bye_label(event):
+    x = random.uniform(0, 0.9)
+    y = random.uniform(0, 0.9)
+
+    bye = ttk.Label(frame1, text='bye!', style='bye.TLabel')
+    bye.place(rely=y, relx=x)
+    label1.lift()
+
+#-------------root structure:
+frame1 = ttk.Frame(root, style='frame1.TFrame')
+frame1.place(relx=0.5, rely=0.5, relwidth=1, relheight=1, anchor='center')
+
+label1 = ttk.Label(frame1, text='???', anchor='center', style='label1.TLabel', cursor='spraycan')
+label1.place(relx=0.5, rely=0.5, relwidth=0.2, relheight=0.1, anchor='center')
+
+label1.bind('<Motion>', show_label)
+label1.bind('<Leave>', bye_label)
+#-----------------------------
+
+#---------start programm:
+root.mainloop()

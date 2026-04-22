@@ -1,0 +1,66 @@
+import tkinter as tk
+from tkinter import ttk
+from PIL import Image, ImageTk
+
+# pink: #ff00e4 grün:#00ff00
+
+root = tk.Tk()
+root.title('title')
+root.attributes('-topmost', True)
+root.configure(pady=10, padx=10, background='#ff00e4')
+
+#-------window settings:
+swidth = root.winfo_screenwidth()
+sheight = root.winfo_screenheight()
+
+width = int(swidth * 0.25)
+height = int(sheight * 0.39)
+
+position_x = int((swidth - width)/2)
+position_y = int((sheight - height)/2)
+
+root.geometry(f'{width}x{height}+{position_x}+{position_y}')
+#------------------------
+#-----------image settings:
+image = Image.open('assets/images/logo.png')
+image.thumbnail((100,100))
+photo = ImageTk.PhotoImage(image)
+#----------------------
+
+#-----------functions:
+
+def show_surprise(event):
+    ttk.Label(root, text='Überraschung').place(relx=0.1, rely=0.9, relwidth=0.8, relheight=0.1)
+
+
+
+#----------programm structure
+label1 = ttk.Label(root, text='das ist ein Label')
+label1.place(relx=0.1, rely=0, relheight=0.1, relwidth=0.8)
+
+#eventstring: '<eventname>'
+label1.bind('<Motion>', show_surprise)
+
+buttonframe = ttk.Frame(root)
+buttonframe.place(relx=0.5, rely=0.5, relheight=0.8, relwidth=0.8, anchor='center')
+
+button1 = ttk.Button(buttonframe, text='click')
+button1.place(relx=0, rely=0, relwidth=0.5, relheight = 0.5)
+
+button2 = ttk.Button(buttonframe, text='click')
+button2.place(relx=0.51, rely=0, relwidth=0.5, relheight = 0.5)
+
+button3 = ttk.Button(buttonframe, text='click')
+button3.place(relx=0.51, rely=0.51, relwidth=0.5, relheight = 0.5)
+
+button4 = ttk.Button(buttonframe, text='click')
+button4.place(relx=0, rely=0.51, relwidth=0.5, relheight = 0.5)
+
+#---------style settings:
+style = ttk.Style()
+style.theme_use('alt')
+
+#-----------------------
+
+#---------programm start:
+root.mainloop()
