@@ -9,7 +9,7 @@ root.title('')
 root.attributes('-topmost', True)
 root.configure(background='#ff00e4')
 
-#------window settings:
+#------window settings: 
 swidth = root.winfo_screenwidth()
 sheight = root.winfo_screenheight()
 
