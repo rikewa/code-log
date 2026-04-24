@@ -1,0 +1,118 @@
+import tkinter as tk 
+from tkinter import ttk
+import random
+
+# pink: #ff00e4 grün:#00ff00
+
+
+root = tk.Tk()
+root.title(':-)')
+root.attributes('-topmost', True)
+root.configure(pady=0,padx=0 ,background='#ff00e4')
+
+#--------variables:
+hover_mode = None
+
+coordinates = tk.StringVar()
+
+label1 = ttk.Label(root, text='', anchor='center', style='label1.TLabel', cursor='man')
+label1.place(relx=0.5, rely=0.5, relheight=0.2, relwidth=0.4, anchor='center')
+label2 = ttk.Label(root, textvariable=coordinates, anchor='center', style='label2.TLabel')
+label2.place(relx=0.5, rely=0.97, relheight=0.06, relwidth=1, anchor='center')
+
+
+#---------functions:
+def selected_option(event):
+    global hover_mode
+
+    if combobox1.current() == 0:
+        hover_mode == 0
+    if combobox1.current() == 1:
+        hover_mode ==1
+    if combobox1.current() == 2:
+        hover_mode ==2
+    if combobox1.current() == 3:
+        hover_mode =='close'
+
+
+def show_label(event):
+        x = random.uniform(0, 0.9)
+        y = random.uniform(0, 0.9)
+
+        if combobox1.current() == -1:
+            option1 = ttk.Label(root, text='choose!', style='label2.TLabel')
+            option1.place(rely=y, relx=x)
+            label1.lift()
+            combobox1.lift()
+            label2.lift()
+        elif combobox1.current() == 0:
+            option1 = ttk.Label(root, text=':)', style='label3.TLabel')
+            option1.place(rely=y, relx=x)
+            label1.lift()
+            combobox1.lift()
+            label2.lift()
+        elif combobox1.current() == 1:
+            option2 = ttk.Label(root, text=':-)', style='label4.TLabel')
+            option2.place(rely=y, relx=x)
+            label1.lift()
+            label2.lift()
+            combobox1.lift()
+        elif combobox1.current() == 2:
+            option3 = ttk.Label(root, text=':—)', style='label5.TLabel')
+            option3.place(rely=y, relx=x)
+            label1.lift()
+            combobox1.lift()
+            label2.lift()
+        elif combobox1.current() == 3:
+            close = ttk.Button(root, text=':-(', command=root.destroy )
+            close.place(rely=y, relx=x)
+            label1.lift()
+            combobox1.lift()
+            label2.lift()
+
+
+def show_coordinates(event):
+    coordinates.set(f'{event.x_root} {event.y_root}')
+
+def on_select(event):
+    combobox1.selection_clear()
+    root.focus()
+
+#----------window settings:
+swidth = root.winfo_screenwidth()
+sheight = root.winfo_screenheight()
+
+width = int(swidth * 0.15)
+height = int(sheight * 0.4)
+
+position_x = int((swidth - width)/2)
+position_y = int((sheight - height)/2)
+root.geometry(f'{width}x{height}+{position_x}+{position_y}')
+
+#-------style settings:
+style = ttk.Style()
+style.theme_use('alt')
+style.configure('label1.TLabel', borderwidth=2, relief='sunken', background='#ff00e4')
+style.configure('label2.TLabel', background='#ff00e4')
+style.configure('label3.TLabel', background='#00ff00', font=('',15))
+style.configure('label4.TLabel', background='#00ff00', font=('',25))
+style.configure('label5.TLabel', background='#00ff00', font=('',35))
+
+#------root structure:
+root.columnconfigure(0, weight=1)
+
+options_box = tk.StringVar()
+options_box.set('choose your fighter')
+
+combobox1 = ttk.Combobox(root, width=20, textvariable=options_box, state='readonly', justify='center')
+combobox1.configure(values=(':)',':-)', ':--)', 'close'), justify='center')
+combobox1.place(relx=0.5, rely=0.05, relheight=0.06, relwidth=0.9, anchor='center')
+
+
+label1.bind('<Motion>', show_label)
+combobox1.bind('<<ComboboxSelected>>', selected_option)
+combobox1.bind('<<ComboboxSelected>>', on_select)
+root.bind('<Motion>', show_coordinates)
+
+#--------programm start:
+root.mainloop()

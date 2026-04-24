@@ -1,0 +1,72 @@
+import tkinter as tk
+from tkinter import ttk
+import random
+
+# pink: #ff00e4 grün:#00ff00
+
+
+root = tk.Tk()
+root.title('title')
+root.attributes('-topmost', True)
+root.configure(pady=10, padx=10, background='#ff00e4')
+
+coordinates = tk.StringVar()
+label2 = ttk.Label(root, textvariable=coordinates, anchor='center')
+
+#----------functions:
+def show_button(event):
+    x = random.uniform(0, 0.9)
+    y = random.uniform(0, 0.9)
+
+    showButton = ttk.Button(root, text='close!', command=root.destroy)
+    showButton.place(rely=y, relx=x)
+    label1.lift()
+
+def show_label(event):
+    x = random.uniform(0, 0.9)
+    y = random.uniform(0, 0.9)
+
+    showLabel = ttk.Label(root, text='hello!')
+    showLabel.place(rely=y, relx=x)
+    label1.lift()
+
+def get_coodinates(event):
+    coordinates.set(f'{event.x_root} {event.y_root}')    
+
+def show_coordinates(event):
+    label2.place(relx = 0.5, rely=0.1, relheight=0.1, relwidth=0.5, anchor='center')
+    label2.lift()
+
+def hide_coordinates(event):
+    label2.place_forget()
+       
+#----------window settings:
+swidth = root.winfo_screenwidth()
+sheight = root.winfo_screenheight()
+
+width = int(swidth * 0.2)
+height = int(sheight * 0.2)
+
+position_x = int((swidth - width)/2)
+position_y = int((sheight - height)/2)
+root.geometry(f'{width}x{height}+{position_x}+{position_y}')
+
+#-----------programm start:
+label1 = ttk.Label(root, text = 'Press x to close. \nPress p to see your coordinates', anchor='center')
+label1.place(relx = 0.5, rely=0.5, relheight=0.3, relwidth=0.8, anchor='center')
+label1.bind('<Motion>', show_label)
+
+month_cb = ttk.Combobox(root)
+month_cb.place(relx = 0.5, rely=0.7, relheight=0.2, relwidth=0.8, anchor='center')
+
+
+label2.event_add('<<CustomEvent>>','<KeyPress-p>')
+label2.event_add('<<CustomEvent2>>', '<KeyRelease-p>')
+label2.lift()
+
+root.bind('<<CustomEvent>>', show_coordinates)
+root.bind('<<CustomEvent2>>', hide_coordinates)
+root.bind('<KeyPress-x>', show_button)
+root.bind('<Motion>', get_coodinates)
+
+root.mainloop()
