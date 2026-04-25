@@ -40,6 +40,5 @@ combobox1.grid(column=0, row=0)
 
 combobox1.bind('<<ComboboxSelected>>', handle_selection)
 
-
 #--------programm start:
 root.mainloop()

@@ -56,10 +56,6 @@ label1 = ttk.Label(root, text = 'Press x to close. \nPress p to see your coordin
 label1.place(relx = 0.5, rely=0.5, relheight=0.3, relwidth=0.8, anchor='center')
 label1.bind('<Motion>', show_label)
 
-month_cb = ttk.Combobox(root)
-month_cb.place(relx = 0.5, rely=0.7, relheight=0.2, relwidth=0.8, anchor='center')
-
-
 label2.event_add('<<CustomEvent>>','<KeyPress-p>')
 label2.event_add('<<CustomEvent2>>', '<KeyRelease-p>')
 label2.lift()
