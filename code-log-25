@@ -1,0 +1,91 @@
+import tkinter as tk 
+from tkinter import ttk
+import random
+
+# pink: #ff00e4 grün:#00ff00
+
+
+root = tk.Tk()
+root.title('scaling')
+root.attributes('-topmost', True)
+root.configure(padx=0, pady=0, background='#00ff00')
+
+upLabel= ttk.Label(root, text=':—)', style='uplabel.TLabel')
+downLabel = ttk.Label(root, text=':—(', style='downlabel.TLabel')
+start_value = tk.IntVar(value=0)
+fontsize = tk.IntVar(value=25)
+
+
+#-------functions:
+def print_up(event):
+    downLabel.place_forget()
+    x = random.uniform(0, 0.9)
+    y = random.uniform(0, 0.9)
+
+    upLabel.place(relx=x, rely=y)
+    spinbox1.lift()
+
+def print_down(event):
+    upLabel.place_forget()
+    x = random.uniform(0, 0.9)
+    y = random.uniform(0, 0.9)
+
+    downLabel.place(relx=x, rely=y)
+    spinbox1.lift()
+
+def update(val):
+    value = round(float(val))
+#zuerst wird aus dem value ein float gemacht, der wird gerundet und schließlich in einen string konvertiert und ans label gegeben
+    sizemax.configure(text=str(value))
+    change_size(value)
+
+def change_size(value):
+    size = int(value)
+
+    style.configure('downlabel.TLabel', font = ('', size))
+    style.configure('uplabel.TLabel', font = ('', size))
+
+
+#-----window settings:
+swidth = root.winfo_screenwidth()
+sheight = root.winfo_screenheight()
+
+width = int(swidth * 0.15)
+height = int(sheight * 0.4)
+
+position_x = int((swidth - width)/2)
+position_y = int((sheight - height)/2)
+root.geometry(f'{width}x{height}+{position_x}+{position_y}')
+
+#------------
+
+#-------style settings:
+style = ttk.Style()
+style.theme_use('alt')
+style.configure('TSpinbox', padding=(0, 10), fieldbackground='#00ff00', background='#00ff00')
+style.map('TSpinbox',selectbackground= [('readonly','#ff00e4')], selectforeground=[('readonly', 'white')], background=[('active','#0ff00')])
+style.configure('downlabel.TLabel', background='#00ff00', foreground='#ff00e4')
+style.configure('uplabel.TLabel', background='#00ff00', foreground='#ff00e4')
+style.configure('label1.TLabel', background='#00ff00', foreground='#ff00e4')
+style.configure('TScale', background='#00ff00', troughcolor='#ff00e4')
+
+
+spinbox1 = ttk.Spinbox(root, textvariable=start_value, from_=0, to=30, wrap=True, state='readonly', style='TSpinbox', justify='center', cursor='hand2')
+spinbox1.place(relx=0.5, rely=0.5, relheight=0.18, relwidth=0.5, anchor='center')
+
+spinbox1.bind('<<Increment>>', print_up)
+spinbox1.bind('<<Decrement>>', print_down)
+
+spinbox1.configure(takefocus=0, font=('Arial', 50))
+
+sizemin = ttk.Label(root, text='size', anchor='e', style='label1.TLabel')
+sizemin.place(relx=0.1, rely=0.05, relheight=0.1, relwidth=0.3, anchor='center' )
+
+scale1 = ttk.Scale(root, orient='horizontal', from_=10, to=50, variable=fontsize, command=update, style='TScale', cursor='hand2')
+scale1.place(relx=0.5, rely=0.05, relheight=0.1, relwidth=0.45, anchor='center')
+
+sizemax = ttk.Label(root, text='25', anchor='w', style='label1.TLabel')
+sizemax.place(relx=0.9, rely=0.05, relheight=0.1, relwidth=0.3, anchor='center' )
+
+#---------program start:
+root.mainloop()
