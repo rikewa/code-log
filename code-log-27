@@ -1,0 +1,124 @@
+import tkinter as tk 
+from tkinter import ttk
+from PIL import Image, ImageTk
+
+# pink: #ff00e4 grün:#00ff00
+
+root = tk.Tk()
+root.title('gallery')
+root.attributes('-topmost', True)
+root.configure(padx=10, pady=10, background='#00ff00')
+
+color_var = tk.StringVar(value='#00ff00')
+
+#-------funkctions:
+def change_color():
+    color = color_var.get()
+    root.configure(bg= color)
+    style.configure('label1.TLabel', background=color)
+    #style.configure('My.TPanedwindow', background=color)
+    #style.configure('frames.TFrame', background=color)
+
+#--------window settings:
+swidth = root.winfo_screenwidth()
+sheight = root.winfo_screenheight()
+
+width = int(swidth * 0.2)
+height = int(sheight * 0.3)
+
+position_x = int((swidth - width)/2)
+position_y = int((sheight - height)/2)
+root.geometry(f'{width}x{height}+{position_x}+{position_y}')
+
+#-------style settings:
+style = ttk.Style()
+style.theme_use('classic')
+style.configure('label1.TLabel', background='#00ff00')
+#style.configure('My.TPanedwindow', background='#00ff00')
+#style.configure('frames.TFrame', background='#00ff00')
+
+#-------images:
+image1 = Image.open('assets/images/cat1.jpg')
+image1.thumbnail((200,200))
+photo1 = ImageTk.PhotoImage(image1)
+
+image2 = Image.open('assets/images/cat2.jpg')
+image2.thumbnail((200,200))
+photo2 = ImageTk.PhotoImage(image2)
+
+image3 = Image.open('assets/images/dog1.jpg')
+image3.thumbnail((200,200))
+photo3 = ImageTk.PhotoImage(image3)
+
+image4 = Image.open('assets/images/hug.png')
+image4.thumbnail((200,200))
+photo4 = ImageTk.PhotoImage(image4)
+
+image5 = Image.open('assets/images/hug2.png')
+image5.thumbnail((200,200))
+photo5 = ImageTk.PhotoImage(image5)
+
+#-----------root structure:
+
+#----------Menu:
+#application_menu = tk.Menu(root)
+#root.configure(menu=application_menu)
+menu_button = ttk.Menubutton(root, text='background', direction='below')
+menu_button.pack(pady=10)
+
+program_menu = tk.Menu(menu_button)
+menu_button.configure(menu=program_menu)
+# label beschriftet den menüpunkt, menu= welches menu soll angezeigt werden?
+#application_menu.add_cascade(label='background', menu=program_menu)
+program_menu.add_radiobutton(label='green', command=change_color, variable=color_var, value='#00ff00')
+program_menu.add_separator()
+program_menu.add_radiobutton(label='pink', command=change_color, variable=color_var, value='#ff00e4')
+program_menu.add_radiobutton(label='red', command=change_color, variable=color_var, value='red')
+program_menu.add_radiobutton(label='blue', command=change_color, variable=color_var, value='blue')
+
+#------------------
+
+#-----------------
+title = ttk.Label(root, text='my favorite pictures:', justify='left', style='label1.TLabel')
+title.pack(side='top', anchor='w', pady=10)
+
+paned_window = ttk.PanedWindow(root, orient='horizontal', style='My.TPanedwindow')
+paned_window.pack(fill='both', expand=True)
+
+frame1 = ttk.Frame(paned_window, style='frames.TFrame')
+label1 = ttk.Label(frame1, image=photo1)
+label1.pack(side='left')
+
+frame2 = ttk.Frame(paned_window, style='frames.TFrame')
+label2 = ttk.Label(frame2, image=photo2)
+label2.pack(side='left')
+
+frame3 = ttk.Frame(paned_window, style='frames.TFrame')
+label3 = ttk.Label(frame3, image=photo4)
+label3.pack(side='left')
+
+frame4 = ttk.Frame(paned_window, style='frames.TFrame')
+label4 = ttk.Label(frame4, image=photo3)
+label4.pack(side='left')
+
+frame5 = ttk.Frame(paned_window, style='frames.TFrame')
+label5 = ttk.Label(frame5, image=photo5)
+label5.pack(side='left')
+
+paned_window.add(frame1)
+paned_window.add(frame2)
+paned_window.add(frame3)
+paned_window.add(frame4)
+paned_window.add(frame5)
+root.update()
+
+paned_window.sashpos(0, 400)
+paned_window.sashpos(1, 500)
+paned_window.sashpos(2, 550)
+paned_window.sashpos(3, 600)
+
+
+size = ttk.Sizegrip(root)
+size.pack(side = 'right', pady=5)
+#-----------program start:
+root.mainloop()
