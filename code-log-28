@@ -1,0 +1,175 @@
+import tkinter as tk
+from tkinter import ttk
+from PIL import Image, ImageTk
+
+# pink: #ff00e4 grün:#00ff00
+
+root = tk.Tk()
+root.attributes('-topmost', True)
+root.title('menu')
+root.configure(pady=20, padx=20, background='#ff00e4')
+
+bg_var = tk.StringVar(value='#ff00e4')
+img_var = tk.StringVar()
+size_var = tk.StringVar(value='small')
+
+#-------images:
+image1= Image.open('assets/images/dog1.jpg')
+image1.thumbnail((200,200))
+photo1 = ImageTk.PhotoImage(image1)
+
+image2= Image.open('assets/images/cat1.jpg')
+image2.thumbnail((200,200))
+photo2 = ImageTk.PhotoImage(image2)
+
+image3= Image.open('assets/images/hug.png')
+image3.thumbnail((200,200))
+photo3 = ImageTk.PhotoImage(image3)
+
+#-----------functions:
+def change_bg():
+    color = bg_var.get()
+    root.configure(bg = color)
+    if color == '#00ff00':
+        style.configure('menu.TMenubutton', background='#ff00e4')
+    elif color == '#ff00e4':
+        style.configure('menu.TMenubutton', background='#00ff00')
+
+def change_img():
+    image_choice = img_var.get()
+    color = bg_var.get()
+
+    if image_choice == 'dog':
+        popup = tk.Toplevel(root)
+        popup.title('dog')
+        popup.configure(padx=5, pady=5, bg = color)
+
+        label_popup = ttk.Label(popup, image=photo1)
+        label_popup.pack()
+        popup.attributes('-topmost', True)
+    elif image_choice == 'cat':
+        popup = tk.Toplevel(root)
+        popup.title('cat')
+        popup.configure(padx=5, pady=5, bg = color)
+
+        label_popup = ttk.Label(popup, image=photo2)
+        label_popup.pack()
+        popup.attributes('-topmost', True)
+    elif image_choice == 'hug':
+        popup = tk.Toplevel(root)
+        popup.title('hug')
+        popup.configure(padx=5, pady=5, bg = color)
+
+        label_popup = ttk.Label(popup, image=photo3)
+        label_popup.pack()
+        popup.attributes('-topmost', True)
+
+    swidth = root.winfo_screenwidth()
+    sheight = root.winfo_screenheight()
+
+    width = int(swidth * 0.12)
+    height = int(sheight * 0.16)
+
+    position_x = int((swidth - width)/2)
+    position_y = int((sheight - height)/2)
+
+    popup.geometry(f'{width}x{height}+{position_x}+{position_y}')
+
+def change_size():
+    size = size_var.get()
+    swidth = root.winfo_screenwidth()
+    sheight = root.winfo_screenheight()
+
+    if size == 'small':
+        width = int(swidth * 0.1)
+        height = int(sheight * 0.14)
+        style.configure('menu.TMenubutton', font=('',15))
+    elif size == 'medium':
+        width = int(swidth * 0.12)
+        height = int(sheight * 0.24)
+        style.configure('menu.TMenubutton', font=('',45))
+    elif size == 'big':
+        width = int(swidth * 0.16)
+        height = int(sheight * 0.36)
+        style.configure('menu.TMenubutton', font=('',80))
+
+    position_x = int((swidth - width)/2)
+    position_y = int((sheight - height)/2)
+
+    root.geometry(f'{width}x{height}+{position_x}+{position_y}')
+
+#---------window settings:
+swidth = root.winfo_screenwidth()
+sheight = root.winfo_screenheight()
+
+width = int(swidth * 0.1)
+height = int(sheight * 0.14)
+
+position_x = int((swidth - width)/2)
+position_y = int((sheight - height)/2)
+root.geometry(f'{width}x{height}+{position_x}+{position_y}')
+
+#----------style settings:
+style = ttk.Style()
+style.theme_use('alt')
+style.configure('menu.TMenubutton', font=('',15), background='#00ff00')
+
+#-------menubar:
+menubar = tk.Menu(root)
+root.configure(menu=menubar)
+
+#---------menu1:
+#mit Menubutton wird das menu in die GUI gelegt
+background_dropdown = ttk.Menubutton(root, text='color', style='menu.TMenubutton', cursor='hand2')
+background_dropdown.pack(fill='both', expand=True, anchor='center')
+
+#das ist die eigentliche menu-funktion
+menu1 = tk.Menu(background_dropdown)
+background_dropdown.configure(menu=menu1)
+menu1.add_radiobutton(label='green', value='#00ff00', variable=bg_var, command=change_bg)
+menu1.add_radiobutton(label='pink', value='#ff00e4', variable=bg_var, command=change_bg)
+
+#--------menu 2:
+background_menu = tk.Menu(root)
+menubar.add_cascade(label='background', menu=background_menu)
+
+background_menu.add_radiobutton(label='green', value='#00ff00', variable=bg_var, command=change_bg)
+background_menu.add_radiobutton(label = 'pink', value='#ff00e4', variable=bg_var, command=change_bg)
+#--------------
+
+#----------menu 3:
+image_menu = tk.Menu(menubar)
+menubar.add_cascade(label='image', menu=image_menu)
+
+image_menu.add_radiobutton(label='dog', value='dog', variable=img_var, command=change_img)
+image_menu.add_radiobutton(label='cat', value='cat', variable=img_var, command=change_img)
+image_menu.add_radiobutton(label='hug', value='hug', variable=img_var, command=change_img)
+
+#----------menu 4:
+image_dropdown = ttk.Menubutton(root, text='image', style='menu.TMenubutton', cursor='hand2')
+image_dropdown.pack(pady=10, fill='both', expand=True)
+
+image_menu2 = tk.Menu(root)
+image_dropdown.configure(menu=image_menu2)
+image_menu2.add_radiobutton(label='dog', value='dog', variable=img_var, command=change_img)
+image_menu2.add_radiobutton(label='cat', value='cat', variable=img_var, command=change_img)
+image_menu2.add_radiobutton(label='hug', value='hug', variable=img_var, command=change_img)
+
+
+#----------menu 5:
+size_dropdown = ttk.Menubutton(root, text= 'size', style='menu.TMenubutton', cursor='hand2')
+size_dropdown.pack(fill='both', expand=True)
+
+size_menu = tk.Menu(size_dropdown)
+size_dropdown.configure(menu=size_menu)
+
+size_menu.add_radiobutton(label='small', value='small', variable=size_var, command=change_size)
+size_menu.add_radiobutton(label='medium', value='medium', variable=size_var, command=change_size)
+size_menu.add_radiobutton(label='big', value='big', variable=size_var, command=change_size)
+
+
+
+
+
+#-------programm start:
+root.mainloop()
