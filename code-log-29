@@ -1,0 +1,74 @@
+import tkinter as tk
+from tkinter import ttk 
+
+# pink: #ff00e4 grün:#00ff00
+
+root = tk.Tk()
+root.title('my drawing')
+root.attributes('-topmost', True)
+root.configure(pady=10, padx=10, background='#ff00e4')
+
+bg_var = tk.StringVar(value='#ff00e4')
+
+pink = tk.StringVar(value='#ff00e4')
+
+#-------------functions:
+def change_bg():
+    color = bg_var.get()
+    root.configure(bg= color)
+    if color == '#00ff00':
+        style.configure('dropdown.TMenubutton', bg = '#00ff00')
+        style.map('dropdown.TMenubutton', background=[('active','#ff00e4')])
+    elif color == '#ff00e4':
+        style.configure('dropdown.TMenubutton', bg = '#ff00e4')
+        style.map('dropdown.TMenubutton', background=[('active','#00ff00')])
+
+#-------window settings:
+swidth = root.winfo_screenwidth()
+sheight = root.winfo_screenheight()
+
+width = int(swidth * 0.21)
+height = int(sheight * 0.3)
+
+position_x = int((swidth - width)/2)
+position_y = int((sheight - height)/2)
+
+root.geometry(f'{width}x{height}+{position_x}+{position_y}')
+#----------- menu:
+
+background_dropdown = ttk.Menubutton(root, text='color', style='dropdown.TMenubutton')
+background_dropdown.pack()
+
+menu1 = tk.Menu(background_dropdown, bg='#ff00e4')
+background_dropdown.configure(menu=menu1)
+
+menu1.add_radiobutton(label='pink', value='#ff00e4', variable=bg_var, command=change_bg)
+menu1.add_radiobutton(label = 'green', value='#00ff00', variable=bg_var, command=change_bg)
+
+
+#----------slider:
+#canvas1 = tk.Canvas(root, height=20)
+#canvas1.pack(side='top', fill='x', expand=True, anchor='center')
+#canvas1.create_window((100,0),anchor='center', window= ttk.Button(canvas1, text='green'))
+#----------
+#------style settings:
+style = ttk.Style()
+style.theme_use('alt')
+style.configure('dropdown.TMenubutton', bg = '#ff00e4')
+style.map('dropdown.TMenubutton', background=[('active','#00ff00')])
+
+#----canvas
+canvas = tk.Canvas(root, bg='#00ff00')
+canvas.pack(fill='x', expand=True, ipady=5)
+
+canvas.create_oval((100,100,50,50), fill='#00ff00', width=5, dash= (2,1,1,1), outline='#ff00e4')
+canvas.create_oval((10,10,50,50), fill='#00ff00', width=5, dash= (2,1,1,1), outline='#ff00e4')
+canvas.create_line((10,10,50,50), fill='#ff00e4')
+canvas.create_polygon((150,150,100,200,140,70), fill = '#ff00e4')
+canvas.create_oval((200,200,300,100), fill='blue')
+canvas.create_arc((200,200,300,100), fill='#ff00e4', start=100, extent = 180, style= tk.CHORD, outline = '#ff00e4', width=10)
+
+canvas.create_text((100,100), text='this is text', fill='blue', width=30 )
+
+#------program start:
+root.mainloop()
