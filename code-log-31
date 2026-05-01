@@ -1,0 +1,97 @@
+import tkinter as tk
+from tkinter import ttk 
+
+# pink: #ff00e4 grün:#00ff00
+
+
+root = tk.Tk()
+root.title('slider')
+root.attributes('-topmost', True)
+root.configure(pady=200, padx=10, background='#ff00e4')
+
+text_var = tk.StringVar()
+text_var.set('green')
+switch = False
+
+index = 0
+colors = ['#ff00e4', '#00ff00']
+
+#-------window settings:
+swidth = root.winfo_screenwidth()
+sheight = root.winfo_screenheight()
+
+width = int(swidth * 0.2)
+height = int(sheight * 0.5)
+
+position_x = int((swidth - width)/2)
+position_y = int((sheight - height)/2)
+
+root.geometry(f'{width}x{height}+{position_x}+{position_y}')
+#----------------------
+#--------style settings:
+
+
+canvas1 = tk.Canvas(root, width= 290, height=130, highlightthickness=0, background='#ff00e4', cursor='hand2')
+canvas1.pack(padx=10, pady=5)
+
+bg = canvas1.create_rectangle((0,1,283,129), width=1, fill='#d9dad9', outline='#838282')
+slider = canvas1.create_rectangle((4,5,280,126), width=0, fill='#d9dad9')
+toggle = canvas1.create_rectangle((5,5, 145,125), width=0, fill ='#d9dad9')
+line1 = canvas1.create_line((4,125,146,125), width=2, fill='#414141')
+line5 = canvas1.create_line((4,123,146,123), width=2, fill='#828282')
+line2 = canvas1.create_line((146,5,146,125), width=2, fill='#414141')
+line6 = canvas1.create_line((144,5,144,124), width=2, fill='#828282')
+line3 = canvas1.create_line((4,5,146,5), width=2, fill='white')
+line4 = canvas1.create_line((4,5,4,125), width=2, fill='white')
+
+text = canvas1.create_text((75,65), text=text_var.get(), font = ('', 40))
+
+#------functions:
+
+def toggle_event(event):
+    global index, switch
+
+    if switch:
+        canvas1.coords(toggle,5,5, 145,125)
+        canvas1.coords(line1, 4,125,146,125)   
+        canvas1.coords(line2, 146,5,146,125)  
+        canvas1.coords(line3,4,5,146,5)      
+        canvas1.coords(line4,4,5,4,125)     
+        canvas1.coords(line5,4,123,146,123) 
+        canvas1.coords(line6,144,5,144,124)
+        canvas1.coords(text,(75,65))
+        canvas1.itemconfigure(slider, fill='#d9dad9')
+        text_var.set('green')
+        root.configure(bg='#ff00e4')
+        canvas1.configure(bg='#ff00e4')
+    
+        
+    else:
+        canvas1.coords(toggle,145,5,280,125)
+        canvas1.coords(line1,144,125,281,125)
+        canvas1.coords(line2,279,5,279,125)
+        canvas1.coords(line3,144,5,281,5)
+        canvas1.coords(line4,144,5,144,125)
+        canvas1.coords(line5,144,123,281,123)
+        canvas1.coords(line6,279,5,279,124)
+        canvas1.coords(text,(210,65))
+        canvas1.itemconfigure(slider, fill='#d9dad9')
+        text_var.set('pink')
+        root.configure(bg='#00ff00')
+        canvas1.configure(bg='#00ff00')
+
+    canvas1.itemconfigure(text, text=text_var.get())
+    switch = not switch
+
+def hover_on(event):
+    canvas1.itemconfigure(toggle, fill='#ebecec')
+
+def hover_off(event):
+    canvas1.itemconfigure(toggle, fill='#d9dad9')
+
+canvas1.bind('<Button-1>', toggle_event)
+canvas1.bind('<Enter>', hover_on)
+canvas1.bind('<Leave>', hover_off)
+
+#------programm start:
+root.mainloop()
