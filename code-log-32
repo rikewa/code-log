@@ -1,0 +1,122 @@
+import tkinter as tk 
+from tkinter import ttk 
+
+# pink: #ff00e4 grün:#00ff00
+
+
+root = tk.Tk()
+root.title('scattergories')
+root.attributes('-topmost', True)
+root.configure(pady=10, padx=10, background= '#00ff00')
+
+def clear_items():
+    for i in example_tree.get_children():   
+        example_tree.delete(i)
+
+def remove_item():
+    items = example_tree.selection()
+    for i in items:
+        example_tree.delete(i)
+
+def add_item():
+    letter = entry1.get()
+    city = entry2.get()
+    country = entry3.get()
+    animal = entry4.get()
+
+    example_tree.insert(parent='', index='end', text=letter, values=(city, country, animal))
+    entry1.delete(0, tk.END)
+    entry2.delete(0, tk.END)
+    entry3.delete(0, tk.END)
+    entry4.delete(0, tk.END)
+
+
+#------window settings:
+swidth = root.winfo_screenwidth()
+sheight = root.winfo_screenheight()
+
+width = int(swidth * 0.22)
+height = int(sheight * 0.36)
+
+position_x = int((swidth - width)/2)
+position_y = int((sheight - height)/2)
+
+root.geometry(f'{width}x{height}+{position_x}+{position_y}')
+root.columnconfigure(0, weight=1)
+
+
+#----------
+#-------style settings:
+style = ttk.Style()
+style.theme_use('alt')
+style.configure('label1.TLabel', background='#00ff00')
+style.configure('frame1.TFrame', background='#00ff00')
+style.configure('example.Treeview', fieldbackground="#ececed", background='#ececed')
+style.configure('button1.TButton', background='#ff00e4', foreground='white', borderwidth = 5, relief='sunken')
+style.map('button1.TButton', foreground= [('active', 'black')])
+style.configure('entry1.TEntry', fieldbackground='#ececed')
+
+
+example_tree = ttk.Treeview(root, selectmode='none', height='8', style='example.Treeview', cursor='man')
+example_tree.grid(column=0, row=0, columnspan=2, sticky='we')
+example_tree.configure(columns=('city', 'country', 'animal'))
+
+
+#--------headlines 
+example_tree.heading('#0', text='letter')
+example_tree.heading('city', text='city')
+example_tree.heading('country', text='country')
+example_tree.heading('animal', text='animal')
+
+#----------colums
+example_tree.column('#0', width=50)
+example_tree.column('city', width=100)
+example_tree.column('country', width=100)
+example_tree.column('animal', width=100)
+
+#----------data
+# leerer string ist root
+example_tree.insert(parent='', index=0, text='A', values=('Amsterdam', 'Albania', 'Ant'))
+example_tree.insert(parent='', index=1, text='B', values=('Barcelona', 'Belgium', 'Bear'))
+example_tree.insert(parent='', index='end', text='C', values=('Copenhagen', 'Croatia', 'Crocodile'))
+example_tree.insert(parent='I001', index='end', text='', values=('Ankara', 'Australia', 'A Lion'))
+
+frame1 = ttk.Frame(root, style='frame1.TFrame')
+frame1.grid(column=0, row=1, sticky='we')
+
+frame1.columnconfigure(0, weight=1)
+frame1.columnconfigure(1, weight=1)
+
+label1 = ttk.Label(frame1, text='letter:', style='label1.TLabel')
+label1.grid(column=0, row=0, sticky='w')
+entry1 = ttk.Entry(frame1, width=30, style='entry1.TEntry', cursor='man')
+entry1.grid(column=1, row=0, sticky='we',pady=5)
+
+label2 = ttk.Label(frame1, text='city:', style='label1.TLabel')
+label2.grid(column=0, row=1, sticky='w')
+entry2 = ttk.Entry(frame1, width=30, style='entry1.TEntry',cursor='man')
+entry2.grid(column=1, row=1, sticky='we')
+
+label3 = ttk.Label(frame1, text='country:',style='label1.TLabel')
+label3.grid(column=0, row=2, sticky='w')
+entry3 = ttk.Entry(frame1, width=30, style='entry1.TEntry',cursor='man')
+entry3.grid(column=1, row=2, sticky='we', pady=5)
+
+label4 = ttk.Label(frame1, text='animal:', style='label1.TLabel')
+label4.grid(column=0, row=3, sticky='w')
+entry4 = ttk.Entry(frame1, width=30, style='entry1.TEntry',cursor='man')
+entry4.grid(column=1, row=3, sticky='we')
+
+button3 = ttk.Button(frame1, text='add', command=add_item,cursor='man')
+button3.grid(column=0, row=4, columnspan=2, pady=10, ipadx=5)
+
+#button2 = ttk.Button(root, text='remove', command=remove_item)
+#button2.grid(column=0, row=2)
+
+button1 = ttk.Button(root, text='clear all', command=clear_items, style='button1.TButton', cursor='man')
+button1.grid(column=0, row=3, pady=5)
+
+
+
+
+root.mainloop()
