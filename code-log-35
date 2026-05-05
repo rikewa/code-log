@@ -1,0 +1,145 @@
+import tkinter as tk 
+from tkinter import ttk 
+from fontTools.ttLib import TTFont
+from fontTools.pens.recordingPen import RecordingPen
+
+# pink: #ff00e4 grün:#00ff00
+
+root = tk.Tk()
+root.attributes('-topmost', True)
+root.title('Font Viewer')
+root.configure(pady=10, padx=10, background='#ff00e4')
+root.resizable(False, False)
+
+#-------window settings:
+swidth = root.winfo_screenwidth()
+sheight = root.winfo_screenheight()
+
+width = int(swidth * 0.2)
+height = int(sheight * 0.45)
+
+position_x = int((swidth - width)/2)
+position_y = int((sheight - height)/2)
+root.geometry(f'{width}x{height}+{position_x}+{position_y}')
+root.columnconfigure(0, weight=1)
+root.rowconfigure(0, weight=10)
+root.rowconfigure(1, weight=1)
+
+#-------style settings:
+style = ttk.Style()
+style.theme_use('alt')
+style.configure('frame1.TFrame', background='#ff00e4')
+style.configure('label1.TLabel', background='#ff00e4')
+
+
+#--------font settings:
+font_path = 'assets/fonts/continua-mono.otf'
+
+font = TTFont(font_path)
+glyph_set = font.getGlyphSet()
+cmap = font.getBestCmap()
+
+#--------functions:
+def cubic_bezier(p0, p1, p2, p3, progress):
+    return (
+        (1-progress)**3 * p0[0] +
+        3*(1-progress)**2 * progress * p1[0] +
+        3*(1-progress) * progress**2 * p2[0] +
+        progress**3 * p3[0],
+
+        (1-progress)**3 * p0[1] +
+        3*(1-progress)**2 * progress * p1[1] +
+        3*(1-progress) * progress**2 * p2[1] +
+        progress**3 * p3[1]
+    )
+
+def tranform_to_canvas(pt, scale=0.4, offset_x= 40, offset_y=300):
+    x,y=pt
+    y = -y
+
+    x*= scale
+    y*= scale
+
+    x+=offset_x
+    y+=offset_y
+
+    return(x,y)
+
+def draw_curve(canvas1, glyph_data):
+    canvas1.delete('all')
+
+    if not glyph_data:
+        return
+
+    current = None
+
+    for befehl, punkte in glyph_data:
+        if befehl == 'moveTo':
+            current = punkte[0]
+
+        elif befehl == 'lineTo':
+            new = punkte[0]
+            canvas1.create_line(tranform_to_canvas(current), tranform_to_canvas(new))
+            current = new
+
+        elif befehl == 'curveTo':
+            p1, p2, p3 = punkte
+            steps = 100
+            prev = current
+
+            for i in range(1, steps +1):
+                progress = i /steps
+                curve_point = cubic_bezier(current, p1, p2,p3, progress)
+                canvas1.create_line(tranform_to_canvas(prev), tranform_to_canvas(curve_point))
+                prev = curve_point
+
+            current = p3
+
+        elif befehl == 'closePath':
+            pass
+
+def render_glyph(character):
+# bei leerer eingabe:
+    if not character:
+        return[]
+# hier wird das erste zeichen aus dem eingegeben string genommen [0]
+# ord gibt hier die unicode nummer des zeichens zurück:
+    unicode = ord(character[0])
+#cmap übergibt mithilfe der unicode nummer den glyphen namen (übersetzungstabelle)
+    glyph_name = cmap.get(unicode, cmap.get(ord('a')))
+    glyph = glyph_set[glyph_name]
+    pen = RecordingPen()
+    glyph.draw(pen)
+    return pen.value
+    
+
+ 
+#------gui settings:
+canvas1 = tk.Canvas(root, background='#ff00e4', highlightthickness=1, highlightbackground='black', cursor='hand2')
+canvas1.grid(column=0, row=0, sticky='nsew')
+
+frame1 = ttk.Frame(root, style='frame1.TFrame', cursor='hand2')
+frame1.grid(column=0, row=1, sticky='')
+frame1.rowconfigure(0, weight=1)
+frame1.rowconfigure(1, weight=1)
+
+label1 = ttk.Label(frame1, text='choose letter:', style='label1.TLabel')
+label1.grid(column=0, row=0, sticky='e', padx=10)
+
+entry1 = ttk.Entry(frame1, width=5, justify='center')
+entry1.grid(column=1, row=0, pady=10, sticky='w')
+
+entry1.insert(0, '&')
+
+#-----button
+def change_glyph():
+    input_char = entry1.get()
+    glyph_data = render_glyph(input_char)
+    draw_curve(canvas1, glyph_data)
+#-------------
+
+button1 = ttk.Button(frame1, text='draw', width=20, command=change_glyph, cursor='hand2')
+button1.grid(column=0, row=1, columnspan=2)
+
+change_glyph()
+root.mainloop()

@@ -7,7 +7,7 @@ root.title('title')
 #das image muss inherhalb des Fensters stehen (root), alles was in das fenster soll, 
 #muss nach root kommen (hier: image und label1)
 #resize((das ist ein Tuple))
-image = Image.open('logo.png').resize((150,50))
+image = Image.open('assets/images/logo.png').resize((150,50))
 photo = ImageTk.PhotoImage(image)
 
 #image2 = Image.open('day03.png').resize((150,50))
