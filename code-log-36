@@ -1,0 +1,158 @@
+import tkinter as tk 
+from tkinter import ttk
+from fontTools.ttLib import TTFont
+from fontTools.pens.recordingPen import RecordingPen
+# pink: #ff00e4 grün:#00ff00
+
+
+root = tk.Tk()
+root.title('glyph inspector')
+root.attributes('-topmost', True)
+root.configure(pady=10, padx=10, background='#00ff00')
+
+#-------variables:
+#coordinates = tk.StringVar()
+glyph_details = tk.StringVar()
+
+#---------font embedding:
+font_path = 'assets/fonts/continua-mono.otf'
+
+font = TTFont(font_path)
+glyph_set = font.getGlyphSet()
+cmap = font.getBestCmap()
+
+#--------window settings:
+swidth = root.winfo_screenwidth()
+sheight = root.winfo_screenheight()
+
+width = int(swidth * 0.2)
+height = int(sheight * 0.45)
+
+position_x = int((swidth - width)/2)
+position_y = int((sheight - height)/2)
+root.geometry(f'{width}x{height}+{position_x}+{position_y}')
+root.columnconfigure(0, weight=1)
+
+root.rowconfigure(0, weight=1)
+root.rowconfigure(1, weight=10)
+#----------------------
+#----------style settings:
+style = ttk.Style()
+style.theme_use('alt')
+
+#-------fuctions:
+def cubic_bezier(p0, p1, p2, p3, progress):
+    return (
+        (1-progress)**3 * p0[0] +
+        3*(1-progress)**2 * progress * p1[0] +
+        3*(1-progress) * progress**2 * p2[0] +
+        progress**3 * p3[0],
+
+        (1-progress)**3 * p0[1] +
+        3*(1-progress)**2 * progress * p1[1] +
+        3*(1-progress) * progress**2 * p2[1] +
+        progress**3 * p3[1]
+    )
+
+def tranform(pt, scale=0.3, offset_x= 70, offset_y=270):
+    x,y = pt 
+    y = -y
+
+    x *= scale
+    y *= scale
+
+    x += offset_x
+    y += offset_y
+
+    return(x,y)
+
+def draw_glyph(canvas1, glyph_data):
+    canvas1.delete('all')
+
+    current = None
+
+    if not glyph_data:
+        return
+    
+    for befehl, punkte in glyph_data:
+        if befehl == 'moveTo':
+            current = punkte[0]
+        elif befehl == 'lineTo':
+            new = punkte[0]
+            canvas1.create_line(tranform(current), tranform(new))
+            current = new
+        elif befehl == 'curveTo':
+            p1, p2, p3 = punkte
+            steps = 50
+            prev = current  
+            for i in range(1, steps +1):
+                progress = i/steps
+                curve_point = cubic_bezier(current, p1, p2, p3, progress)
+                canvas1.create_line(tranform(prev), tranform(curve_point))
+                prev = curve_point
+            current = p3
+
+        elif befehl == 'closePath':
+            pass
+
+def render_Glyph(character):
+
+    if not character:
+        return
+    u_code = ord(character[0])
+    glyph_name = cmap.get(u_code, cmap.get(ord('a')))
+    glyph = glyph_set[glyph_name]
+    pen = RecordingPen()
+    glyph.draw(pen)
+    return pen.value
+
+
+def show_details(character):
+    if not character:
+        return
+    uni_code = ord(character)
+    glyph_name = cmap.get(uni_code, 'unknown')
+    glyph_details.set(f'{character} | unicode: {uni_code} | {glyph_name}')
+
+#-----------window:
+canvas1 = tk.Canvas(root)
+canvas1.grid(column=0, row=1, sticky='nswe')
+
+labellframe1 = ttk.Labelframe(root, text='')
+labellframe1.grid(column=0, row=0, sticky='we')
+labellframe1.columnconfigure(0, weight=1)
+labellframe1.columnconfigure(1, weight=1)
+labellframe1.columnconfigure(2, weight=5)
+
+label1 = ttk.Label(labellframe1, text='choose glyph:')
+label1.grid(column=0, row=0, sticky='w', padx=5)
+
+entry1 = ttk.Entry(labellframe1, width=5, justify='center')
+entry1.grid(column=1, row=0, ipady=4, pady=15, sticky='w')
+entry1.insert(0, 'a')
+
+def draw_button():
+    input_glyph = entry1.get()
+    glyph_data = render_Glyph(input_glyph)
+    draw_glyph(canvas1, glyph_data)
+    
+    show_details(input_glyph)
+    
+button1 = ttk.Button(labellframe1, text='draw', command=draw_button, cursor='hand2')
+button1.grid(column=2, row=0)
+
+#--------footer
+frame1 = ttk.Frame(root, style='frame1.TFrame')
+frame1.grid(column=0, row=2, sticky='nswe')
+frame1.columnconfigure(0, weight=1)
+frame1.columnconfigure(1, weight=1)
+
+details1 = ttk.Label(frame1, text='glyph info:')
+details1.grid(column=0, row=0, sticky='e', pady=5)
+
+details2 = ttk.Label(frame1, textvariable=glyph_details)
+details2.grid(column=1, row=0, padx=5, sticky='w')
+
+#--------start program:
+draw_button()
+root.mainloop()

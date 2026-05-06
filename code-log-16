@@ -8,7 +8,7 @@ import datetime
 
 root = tk.Tk()
 root.attributes('-topmost', True)
-root.title('title')
+root.title('friends')
 root.configure(background='#00ff00', padx=10, pady=10)
 
 #-------- grid settings

@@ -101,5 +101,6 @@ canvas1.pack(fill='both', expand=True)
 
 
 #----program start:
+print(pen.value)
 draw_bezier(canvas1, penData)
 root.mainloop()

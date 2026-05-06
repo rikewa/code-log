@@ -1,0 +1,12 @@
+from fontTools.ttLib import TTFont
+
+font_path = 'assets/fonts/continua-mono.otf'
+
+font = TTFont(font_path)
+glyph_set = font.getGlyphSet()
+cmap = font.getBestCmap()
+
+
+for unicode, name in cmap.items():
+    character = chr(unicode)
+    print(f'{character:5} | Unicode: {unicode}')
