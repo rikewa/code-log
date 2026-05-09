@@ -110,7 +110,7 @@ def show_infos(character):
     
     uni_code = ord(character)
     glyph_name = cmap.get(uni_code, 'unknown')
-    info_var.set(f'{glyph_name} {character} {uni_code}[unicode] ')
+    info_var.set(f'{character} | {glyph_name} | {uni_code} [unicode]')
 
 #----------
 labelframe1 = ttk.LabelFrame(root)
