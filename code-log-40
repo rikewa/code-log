@@ -59,7 +59,7 @@ def create_shape(canvas1, p1, p2):
         return canvas1.create_oval(x1, y1, x2, y2, fill='#ff00e4', outline="#ff00e4", width=0)
     
     elif mode == 'line':
-        return canvas1.create_line(x1, y1, x2, y2, fill='#ff00e4')
+        return canvas1.create_line(x1, y1, x2, y2, fill='#ff00e4', smooth=True, capstyle="round", joinstyle="round")
     
     elif mode == 'rectangle':
         return canvas1.create_rectangle(x1, y1, x2, y2, fill='#ff00e4', outline="#ff00e4", width=0)
