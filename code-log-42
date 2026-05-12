@@ -1,0 +1,104 @@
+import tkinter as tk 
+from tkinter import ttk 
+from fontTools.ttLib import TTFont
+
+# pink: #ff00e4 grün:#00ff00
+
+root = tk.Tk()
+root.attributes('-topmost',True)
+root.title('')
+root.configure(pady=10, padx=10, background='#ff00e4')
+
+#--------variables
+lastx, lasty = 100, 100
+tool_choice = tk.StringVar()
+tool_choice.set('none')
+current_lines = []
+
+#-------window settings:
+swidth = root.winfo_screenwidth()
+sheight = root.winfo_screenheight()
+
+width = int(swidth*0.2)
+height = int(sheight * 0.3)
+
+position_x = int((swidth - width)/2)
+position_y = int((sheight - height)/2)
+
+root.geometry(f'{width}x{height}+{position_x}+{position_y}')
+root.columnconfigure(0, weight=1)
+root.rowconfigure(0, weight=1)
+root.rowconfigure(1, weight=5)
+root.rowconfigure(2, weight=1)
+
+#--------- style settings:
+style = ttk.Style()
+style.theme_use('alt')
+
+#-------font settings:
+font_path = 'assets/fonts/artificiel-testing.otf'
+
+font = TTFont(font_path)
+glyph_set = font.getGlyphSet()
+cmap = font.getBestCmap()
+
+#----------- functions:
+def save_pos(event):
+    global lastx, lasty
+    event.x = lastx
+    event.y = lasty
+
+def tool(event):
+    global lastx, lasty
+    tool = tool_choice.get()
+
+    if tool == 'pen':
+        canvas1.configure(cursor='spraycan')
+        line_id= canvas1.create_line(lastx, lasty, event.x, event.y, fill='#ff00e4')
+        current_lines.append(line_id)
+        save_pos(event)
+
+    elif tool == 'none':
+        canvas1.configure(cursor='hand2')
+
+def clear():
+    canvas1.delete('all')
+
+    
+
+#---------GUI structure
+toolbar= ttk.Frame(root)
+toolbar.grid(column=0, row=0)
+
+radiobutton1 = ttk.Radiobutton(toolbar, text='pen', value='pen', variable=tool_choice, command=tool)
+radiobutton1.grid(column=0, row=0)
+
+radiobutton2 = ttk.Radiobutton(toolbar, text='none', value='none', variable=tool_choice, command=tool)
+radiobutton2.grid(column=1, row=0)
+
+canvas1 = tk.Canvas(root, cursor='hand2')
+canvas1.grid(column=0, row=1, sticky='nswe')
+
+canvas1.bind('<Button-1>', save_pos)
+canvas1.bind('<B1-Motion>', tool)
+
+frame1 = ttk.Frame(root)
+frame1.grid(column=0, row=2)
+frame1.columnconfigure(0, weight=1)
+frame1.columnconfigure(1, weight=1)
+#frame1.columnconfigure(2, weight=1)
+
+#entry1 = ttk.Entry(frame1, width=6)
+#entry1.grid(column=0, row=0)
+
+#button1 = ttk.Button(frame1, text='draw')
+#button1.grid(column=1, row=0)
+
+#button2 = ttk.Button(frame1, text='save')
+#button2.grid(column=0, row=0)
+
+button3 = ttk.Button(frame1, text='clear', command=clear)
+button3.grid(column=1, row=0, columnspan=2)
+
+#---------program start:
+root.mainloop()
