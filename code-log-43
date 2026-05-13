@@ -1,0 +1,237 @@
+import tkinter as tk 
+from tkinter import ttk 
+from fontTools.ttLib import TTFont
+from fontTools.pens.recordingPen import RecordingPen
+from PIL import Image
+import io
+from tkinter import filedialog
+
+# pink: #ff00e4 grün:#00ff00
+
+
+root = tk.Tk()
+root.title('Glyph Canvas')
+root.attributes('-topmost', True)
+root.configure( background='#d9d9d9')
+
+#-------variables:
+tool_choice = tk.StringVar()
+tool_choice.set('none')
+pen_lines =[]
+glyph_lines =[]
+current_width = 1
+
+#------window settings:
+swidth = root.winfo_screenwidth()
+sheight = root.winfo_screenheight()
+
+width = int(swidth *0.3)
+height = int(sheight * 0.55)
+
+position_x = int((swidth - width)/2)
+position_y = int((sheight - height)/2)
+
+root.geometry(f'{width}x{height}+{position_x}+{position_y}')
+root.columnconfigure(0, weight=8)
+root.columnconfigure(1, weight=1)
+root.rowconfigure(0, weight=1)
+root.rowconfigure(1, weight=5)
+root.rowconfigure(2, weight=1)
+#--------------style settings:
+style = ttk.Style()
+style.theme_use('alt')
+style.configure('entry1.TEntry')
+
+#-----------font settings:
+font_path = 'assets/fonts/artificiel-testing.otf'
+
+font = TTFont(font_path)
+glyph_set = font.getGlyphSet()
+cmap = font.getBestCmap()
+#-------functions:
+def save_pos(event):
+    global lastx, lasty 
+    lastx = event.x
+    lasty = event.y
+
+
+def tools(event):
+    global lastx, lasty, pen_lines
+    tool = tool_choice.get()
+
+    if tool == 'pen':
+        canvas1.configure(cursor='spraycan')
+        line_id=canvas1.create_line(lastx, lasty, event.x, event.y, fill='black', smooth=True, joinstyle='round', capstyle='round', width=current_width)
+        pen_lines.append(line_id)
+        save_pos(event)
+    elif tool == 'marker':
+        canvas1.configure(cursor='spraycan')
+        line_id=canvas1.create_line(lastx, lasty, event.x, event.y, fill='#00ff00', smooth=True, joinstyle='bevel', capstyle='projecting', width=current_width)
+        pen_lines.append(line_id)
+        save_pos(event)
+    
+    elif tool == 'none':
+        canvas1.configure(cursor='hand2')
+    
+
+def clear_canvas():
+    canvas1.delete('all')
+        
+
+def cubic_bezier(p0, p1, p2, p3, progress):
+    return (
+        (1-progress)**3 * p0[0] +
+        3*(1-progress)**2 * progress * p1[0] +
+        3*(1-progress) * progress**2 * p2[0] +
+        progress**3 * p3[0],
+
+        (1-progress)**3 * p0[1] +
+        3*(1-progress)**2 * progress * p1[1] +
+        3*(1-progress) * progress**2 * p2[1] +
+        progress**3 * p3[1]
+    )
+
+def transform(pt, scale=0.35, offset_x = 10, offset_y=350):
+    x,y= pt
+    y = -y
+
+    x *= scale
+    y *= scale
+
+    x += offset_x
+    y += offset_y
+
+    return(x,y)
+
+def draw_bezier(canvas1, penData):
+    canvas1.delete('all')
+    current = None
+    starting = None
+    lines= []
+
+    if not penData:
+        return lines
+    
+    for befehl, punkte in penData:
+        if befehl == 'moveTo':
+            current = punkte[0]
+            starting = punkte[0]
+        elif befehl == 'lineTo':
+            new = punkte[0]
+            line_id = canvas1.create_line(transform(current), transform(new), smooth=True, joinstyle='round', capstyle='round', fill='#ff00e4')
+            lines.append(line_id)
+            current = new
+        elif befehl == 'curveTo':
+            p1, p2, p3 = punkte
+            steps = 50
+            prev = current
+            for i in range(1, steps+1):
+                process = i/steps
+                curve_points = cubic_bezier(current, p1, p2, p3, process)
+                line_id= canvas1.create_line(transform(prev), transform(curve_points), smooth=True, joinstyle='round', capstyle='round',fill='#ff00e4')
+                lines.append(line_id)
+                prev = curve_points
+            current =p3
+        elif befehl == 'closePath':
+            if starting is not None and current is not None:
+                line_id = canvas1.create_line(transform(current), transform(starting), smooth=True, joinstyle='round', capstyle='round',fill='#ff00e4')
+                lines.append(line_id)
+    return lines
+
+def render_glyph(character):
+    if not character:
+        return
+    
+    uni_code = ord(character)
+    glyph_name = cmap.get(uni_code, cmap.get(ord('a')))
+    glyph = glyph_set[glyph_name]
+    pen = RecordingPen()
+    glyph.draw(pen)
+    return pen.value
+
+def stroke_update(value):
+    global pen_lines
+    current_width = float(value)
+    for lines in pen_lines:
+        canvas1.itemconfig(lines, width=current_width)
+
+def glyph_update(value):
+    for lines in glyph_lines:
+        canvas1.itemconfig(lines, width=float(value))
+
+def save_img():
+    ps = canvas1.postscript(colormode='color')
+    img = Image.open(io.BytesIO(ps.encode('utf-8')))
+    path = filedialog.asksaveasfilename(defaultextension='png', initialfile='canvas.png', filetypes=[("PNG Datei", "*.png"),("Alle Dateien", "*.*")]  )
+    if path:
+        img.save(path)
+
+#------------- program structure:
+
+#--------header
+toolbar = ttk.Frame(root,cursor='hand2')
+toolbar.grid(column=0, row=0, sticky='we', padx=10)
+toolbar.columnconfigure(0, weight=1)
+toolbar.columnconfigure(1, weight=1)
+toolbar.columnconfigure(2, weight=1)
+toolbar.columnconfigure(3, weight=1)
+
+radiobutton1 = ttk.Radiobutton(toolbar, text='pen', value='pen', variable=tool_choice,cursor='hand2')
+radiobutton1.grid(column=0, row=0, sticky='w')
+
+radiobutton2 = ttk.Radiobutton(toolbar, text='marker', value='marker', variable=tool_choice,cursor='hand2')
+radiobutton2.grid(column=1, row=0, sticky='w')
+
+radiobutton3 = ttk.Radiobutton(toolbar, text='none', value='none', variable=tool_choice,cursor='hand2')
+radiobutton3.grid(column=2, row=0, sticky='w')
+
+thickness = ttk.Scale(toolbar, orient='horizontal', from_=1, to=30, command=stroke_update,cursor='hand2') 
+thickness.set(1)
+thickness.grid(column=3, row=0, sticky='w')
+
+#--------cannvas
+canvas1 = tk.Canvas(root,cursor='hand2')
+canvas1.grid(column=0, row=1, sticky='nswe', padx=10)
+
+canvas1.bind('<Button-1>', save_pos)
+canvas1.bind('<B1-Motion>', tools)
+
+#-------menu
+menuframe = ttk.Frame(root,cursor='hand2')
+menuframe.grid(column=1, row=0, sticky='ns', rowspan=3, padx=10, pady=10)
+menuframe.configure(width=120)
+menuframe.grid_propagate(False)
+menuframe.columnconfigure(0, weight=1)
+
+entry1 = ttk.Entry(menuframe, justify='center', style='entry1.TEntry',cursor='hand2')
+entry1.grid(column=0, row=0, pady=10, ipady=10, ipadx=10)
+entry1.configure(font=('artificiel text', 80))
+entry1.insert(0, 'a')
+
+def drawing_button():
+    thickness2.set(1)
+    global glyph_lines
+    input_value = entry1.get()
+    penData = render_glyph(input_value)
+    glyph_lines = draw_bezier(canvas1, penData)
+
+button3 = ttk.Button(menuframe, text='draw', command=drawing_button,cursor='hand2')
+button3.grid(column=0, row=1)
+
+thickness2 = ttk.Scale(menuframe, orient='horizontal', from_=1, to=50, command=glyph_update,cursor='hand2') 
+thickness2.set(1)
+thickness2.grid(column=0, row=2 ,pady=100)
+
+#------footer
+footer = ttk.Frame(root)
+footer.grid(column=0, row=2)
+
+button1 = ttk.Button(footer, text='clear', command=clear_canvas,cursor='hand2')
+button1.grid(column=0, row=0, padx=5)
+
+button2 = ttk.Button(footer, text='save', command=save_img,cursor='hand2')
+button2.grid(column=1, row=0, padx=5)
+
+#--------program start:
+drawing_button()
+root.mainloop()
