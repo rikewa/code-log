@@ -231,7 +231,7 @@ button1.grid(column=0, row=0, padx=5)
 
 button2 = ttk.Button(footer, text='save', command=save_img,cursor='hand2')
 button2.grid(column=1, row=0, padx=5)
-
+skt
 #--------program start:
 drawing_button()
 root.mainloop()
