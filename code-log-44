@@ -1,0 +1,285 @@
+import tkinter as tk 
+from tkinter import ttk 
+from fontTools.ttLib import TTFont
+from fontTools.pens.recordingPen import RecordingPen
+import math
+import random
+from PIL import Image
+import io
+from tkinter import filedialog
+# pink: #ff00e4 grün:#00ff00
+
+root = tk.Tk()
+root.title('Bézier Distortion')
+root.attributes('-topmost', True)
+root.configure(pady=20, padx=20, background='#ff00e4')
+
+#------variables:
+current_lines = []
+current_width = 1
+    #-----effect variables
+wave_strength = 0
+wave_freq = 0
+noise_strength = 0
+scale = 1
+
+#-----window settings:
+swidth = root.winfo_screenwidth()
+sheight = root.winfo_screenheight()
+
+width = int(swidth* 0.35)
+height = int(sheight * 0.45)
+
+position_x = int((swidth - width)/2)
+position_y = int((sheight - height)/2)
+
+root.geometry(f'{width}x{height}+{position_x}+{position_y}')
+root.rowconfigure(0, weight=1)
+root.columnconfigure(0, weight=5)
+root.columnconfigure(1, weight=0)
+
+#-------style settings:
+style = ttk.Style()
+style.theme_use('alt')
+style.configure('frame1.TFrame', background = '#d9d9d9', padding=0)
+style.configure('button3.TButton',relief='raised', borderwidth=6 ,background='#ff00e4',foreground='white')
+style.map('button3.TButton', foreground=[('active','#ff00e4')])
+
+
+#------font settings:
+font_path = 'assets/fonts/artificiel-testing.otf'
+
+font = TTFont(font_path)
+glyph_set = font.getGlyphSet()
+cmap = font.getBestCmap()
+
+#-------functions:
+def cubic_bezier(p0, p1, p2, p3, progress):
+    return (
+        (1-progress)**3 * p0[0] +
+        3*(1-progress)**2 * progress * p1[0] +
+        3*(1-progress) * progress**2 * p2[0] +
+        progress**3 * p3[0],
+
+        (1-progress)**3 * p0[1] +
+        3*(1-progress)**2 * progress * p1[1] +
+        3*(1-progress) * progress**2 * p2[1] +
+        progress**3 * p3[1]
+    )
+
+def transform(pt, center_x, scale = 0.3, offset_x = 220, offset_y=350):
+    x,y = pt
+    x -= center_x
+    y = -y
+    
+    x, y = apply_effects((x, y))
+
+    x*= scale
+    y*= scale
+
+    x+= offset_x
+    y+= offset_y
+
+    return(x,y)
+
+def draw_glyph(canvas1, penData):
+    canvas1.delete('all')
+    min_x, max_x = get_glyph_bounds(penData)
+    center_x = (min_x + max_x) / 2
+    current = None
+    starting = None 
+    lines=[]
+
+    if not penData:
+        return
+    
+    for befehl, punkte in penData:
+        if befehl == 'moveTo':
+            current = punkte[0]
+            starting = punkte[0]
+        elif befehl == 'lineTo':
+            new = punkte[0]
+            line_id= canvas1.create_line(transform(current, center_x), transform(new, center_x), joinstyle='round', capstyle='round', fill='#ff00e4')
+            lines.append(line_id)
+            current = new
+        elif befehl == 'curveTo':
+            p1, p2, p3 = punkte
+            steps = 50
+            prev = current
+            for i in range(1, steps+1):
+                process = i/steps
+                curve_point = cubic_bezier(current, p1, p2, p3, process)
+                line_id= canvas1.create_line(transform(prev, center_x), transform(curve_point, center_x),joinstyle='round', capstyle='round',fill='#ff00e4')
+                lines.append(line_id)
+                prev = curve_point
+            current = p3
+        elif befehl == 'closePath':
+            if starting is not None and current is not None:
+                line_id = canvas1.create_line(transform(current, center_x), transform(starting, center_x), joinstyle='round', capstyle='round',fill='#ff00e4')
+                lines.append(line_id)
+
+    for line in lines:
+        canvas1.itemconfig(line, width=current_width)
+    return lines
+
+def render_glyph(character):
+    if not character:
+        return
+    
+    uni_code = ord(character)
+    glyph_name = cmap.get(uni_code, cmap.get(ord('a')))
+    glyph = glyph_set[glyph_name]
+
+    pen = RecordingPen()
+    glyph.draw(pen)
+    return pen.value
+
+
+
+def update_glyph(value):
+    global current_width
+    current_width = float(value)
+    for lines in current_lines:
+        canvas1.itemconfig(lines, width=current_width)
+
+def get_glyph_bounds(penData):
+    points = []
+
+    for befehl, punkte in penData:
+        for pt in punkte:
+            points.append(pt)
+        
+    x_punkte = []
+    for p in points:
+        x = p[0]
+        x_punkte.append(x)
+    min_x = min(x_punkte)
+    max_y = max(x_punkte)
+
+    return min_x, max_y
+
+#-------effect functions:
+def effect(pt):
+    x, y = pt
+    return x,y
+
+def apply_effects(pt):
+    x, y = pt 
+    for effect in effects:
+        x,y =effect((x,y))
+    return(x,y)
+
+def wave_effect(pt):
+    x, y = pt
+#hier werden die kurven berechnet, sinus von (punkt x * 0.02) (-> wie häufig wiederholen sich die wellen) * 20 (-> bestimmt die höhe der welle)
+# math.sin (erzeugt eine sinusförmige bewegung)
+# x * wave_freq (bestimmt wie häufig sich die welle wiederholt)
+# * wave_strength bestimmt die höhe der welle 
+    y += math.sin(x * wave_freq) * wave_strength
+    return(x,y)
+
+def noise_effect(pt):
+    x, y = pt
+
+    x += random.uniform(-noise_strength, noise_strength)
+    y += random.uniform(-noise_strength, noise_strength)
+    return(x,y)
+
+def scale_effect(pt):
+    x, y = pt
+    return (x*scale, y*scale)
+
+effects = [wave_effect, noise_effect, scale_effect]
+
+def update_wave(value):
+    global wave_strength
+    wave_strength = float(value)
+    drawing_button()
+
+def update_wavefreq(value):
+    global wave_freq
+    wave_freq = float(value)
+    drawing_button()
+
+def update_noise(value):
+    global noise_strength
+    noise_strength = float(value)
+    drawing_button()
+
+def update_scale(value):
+    global scale
+    scale = float(value)
+    drawing_button()
+
+def save_img():
+    ps = canvas1.postscript()
+    img = Image.open(io.BytesIO(ps.encode('utf-8')))
+    path = filedialog.asksaveasfilename(defaultextension='png', initialfile='canvas.png', filetypes=[('PNG Datei', '*.png')] )
+
+    if path:
+        img.save(path)
+
+#------------ program structure:
+#---------canvas
+canvas1 = tk.Canvas(root, cursor='hand2')
+canvas1.grid(column=0, row=0, sticky='nswe', padx=0, pady=0)
+
+#-------menu
+menuframe = ttk.Frame(root, style='frame1.TFrame', cursor='hand2')
+menuframe.grid(column=1, row=0, sticky='ns', padx=0, pady=0)
+menuframe.configure(width=150)
+menuframe.grid_propagate(False)
+
+menuframe.columnconfigure(0, weight=1)
+menuframe.rowconfigure(0, weight=0)
+menuframe.rowconfigure(1, weight=0)
+menuframe.rowconfigure(2, weight=1)
+menuframe.rowconfigure(3, weight=1)
+menuframe.rowconfigure(4, weight=1)
+menuframe.rowconfigure(5, weight=1)
+menuframe.rowconfigure(6, weight=1)
+menuframe.rowconfigure(7, weight=1)
+
+
+entry1 = ttk.Entry(menuframe, justify='center', cursor='hand2')
+entry1.grid(column=0, row=0, ipady=10, ipadx=10, padx=10, pady=10)
+entry1.configure(font=('artificiel text', 80), foreground='#ff00e4')
+
+entry1.insert(0, 'a')
+
+def drawing_button():
+    global current_lines
+    input_value = entry1.get()
+    penData = render_glyph(input_value)
+    current_lines = draw_glyph(canvas1, penData)
+
+button1 = ttk.Button(menuframe, text= 'draw', command=drawing_button, cursor='hand2')
+button1.grid(column=0, row=1, pady=10)
+
+
+slider1 = ttk.Scale(menuframe, from_=1, to= 10, orient='horizontal', command=update_glyph,cursor='hand2')
+slider1.set(1)
+slider1.grid(column=0, row=2)
+
+slider2 = ttk.Scale(menuframe, from_=1, to= 100, orient='horizontal', command=update_wave,cursor='hand2')
+slider2.set(1)
+slider2.grid(column=0, row=3)
+
+slider3 = ttk.Scale(menuframe, from_=0.01, to=0.7, orient='horizontal', command=update_wavefreq,cursor='hand2')
+slider3.set(0.01)
+slider3.grid(column=0, row=4)
+
+slider4 = ttk.Scale(menuframe, from_=1, to= 50, orient='horizontal', command=update_noise,cursor='hand2')
+slider4.set(1)
+slider4.grid(column=0, row=5)
+
+slider5 = ttk.Scale(menuframe, from_=1, to= 4, orient='horizontal', command=update_scale,cursor='hand2')
+slider5.set(1)
+slider5.grid(column=0, row=6)
+
+button2 = ttk.Button(menuframe, text='save', command=save_img, cursor='hand2', style='button3.TButton')
+button2.grid(column=0, row=7, sticky='we', padx=10)
+
+#--------------program start:
+drawing_button()
+root.mainloop()
