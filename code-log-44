@@ -134,8 +134,6 @@ def render_glyph(character):
     glyph.draw(pen)
     return pen.value
 
-
-
 def update_glyph(value):
     global current_width
     current_width = float(value)
