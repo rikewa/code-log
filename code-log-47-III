@@ -5,7 +5,7 @@ from fontTools.pens.recordingPen import RecordingPen
 # pink: #ff00e4 grün:#00ff00
 
 root = tk.Tk()
-root.title('fill Bézier')
+root.title('fill bézier')
 root.attributes('-topmost', True)
 root.configure(pady=10, padx=10, background='#ff00e4')
 #------variables:

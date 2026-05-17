@@ -5,7 +5,7 @@ from fontTools.pens.recordingPen import RecordingPen
 # pink: #ff00e4 grün:#00ff00
 
 root = tk.Tk()
-root.title('title')
+root.title('')
 root.attributes('-topmost', True)
 root.configure(pady=10, padx=10, background='#00ff00')
 #------variables:
@@ -82,7 +82,7 @@ def cubic_bezier(p0, p1, p2, p3, progress):
         progress**3 * p3[1]
     )
 
-def transform(pt, center_x, scale = 0.3, offset_x= 150, offset_y = 350):
+def transform(pt, center_x, scale = 0.32, offset_x= 190, offset_y = 300):
     x,y = pt
     x -= center_x
     y = -y
@@ -182,33 +182,24 @@ def draw_filled_glyph(canvas1, contours):
         current = None
         for befehl, punkte in kontur:
             if befehl == 'moveTo':
-                current = punkte[0]
-                points.append(transform(current, center_x))
+                current = transform(punkte[0], center_x)
+                points.append(current)
             elif befehl == 'lineTo':
-                current = punkte[0]
-                points.append(transform(current, center_x))
+                p = transform(punkte[0], center_x)
+                points.append(p)
             elif befehl == 'curveTo':
-                p0 = current
                 p1, p2, p3 = punkte
-                steps = 10
+                steps = 30
                 for i in range(1, steps+1):
                     progress = i/steps
-                    curve_point = cubic_bezier(p0, p1, p2, p3, progress)
-                    points.append(transform(curve_point, center_x))
-                current = p3
-            elif befehl == 'closePath':
-                pass
-
+                    curve_point = cubic_bezier(current, p1, p2, p3, progress)
+                    screenpoint = transform(curve_point, center_x)
+                    points.append(screenpoint)
         flat = []
-        for x,y in points:
-            flat.append(x)
-            flat.append(y)
-        canvas1.create_polygon(
-            flat,
-            fill='black',
-            outline='',
-            smooth=False
-        )
+        for p in points:
+            for coord in p:
+                flat.append(coord)
+        canvas1.create_polygon(flat, fill='black', outline='')
 
 #--------program structure:
 canvas1 = tk.Canvas(root)
@@ -216,7 +207,7 @@ canvas1.grid(column=0, row=0, sticky='nswe')
 
 menuframe = ttk.Frame(root)
 menuframe.grid(column=1, row=0, sticky='ns')
-menuframe.configure(width=120)
+menuframe.configure(width=130)
 menuframe.grid_propagate(False)
 
 menuframe.columnconfigure(0, weight=1)
@@ -229,8 +220,8 @@ entryframe.grid(column=0, row=0, sticky='nswe')
 entryframe.columnconfigure(0, weight=1)
 
 entry1 = ttk.Entry(entryframe, justify='center')
-entry1.grid(column=0, row=0)
-entry1.configure(font=('',100))
+entry1.grid(column=0, row=0, padx=10, pady=10, ipady=20)
+entry1.configure(font=('artificiel',90))
 entry1.insert(0, 'a')
 
 def drawing_button():
@@ -246,30 +237,12 @@ def fill_glyph():
     draw_filled_glyph(canvas1, contours)
 
 button1 = ttk.Button(entryframe, text='draw', command=drawing_button)
-button1.grid(column=0, row=1)
+button1.grid(column=0, row=1, pady=10)
     #-----------------
-radioframe = ttk.Frame(menuframe)
-radioframe.grid(column=0, row=1, sticky='nswe')
-radioframe.columnconfigure(0, weight=1)
 
-radiobutton1 = ttk.Radiobutton(radioframe, text = 'line', value='line', variable=shape_choice, command=drawing_button)
-radiobutton1.grid(column=0, row=0)
-radiobutton2 = ttk.Radiobutton(radioframe, text = 'oval', value='oval',variable=shape_choice, command=drawing_button)
-radiobutton2.grid(column=0, row=1)
-radiobutton3 = ttk.Radiobutton(radioframe, text = 'rectangle', value='rect',variable=shape_choice,command=drawing_button)
-radiobutton3.grid(column=0, row=2)
-radiobutton4 = ttk.Radiobutton(radioframe, text = 'polygon', value='poly',variable=shape_choice,command=drawing_button)
-radiobutton4.grid(column=0, row=3)
-    #--------------------
-sliderframe = ttk.Frame(menuframe)
-sliderframe.grid(column=0, row=2, sticky='nswe')
-sliderframe.columnconfigure(0, weight=1)
 
-slider1 = ttk.Scale(sliderframe, orient='horizontal', from_=1, to=10)
-slider1.grid(column=0, row=0)
-
-fillbutton = ttk.Button(sliderframe, text = 'fill', command=fill_glyph)
-fillbutton.grid(column=0, row=1)
+fillbutton = ttk.Button(entryframe, text = 'fill', command=fill_glyph)
+fillbutton.grid(column=0, row=2)
 
 
 #-----program start:
