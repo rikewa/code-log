@@ -241,7 +241,7 @@ slider1 = ttk.Scale(root, orient='vertical', from_=50, to=500, command=update_li
 slider1.grid(column=1, row=1, sticky='ns')
 
 slider4 = ttk.Scale(root, orient='vertical', from_=50, to=1, command=update_steps,cursor='hand2')
-slider4.set(50)ﬁ
+slider4.set(50)
 slider4.grid(column=2, row=1, sticky='ns')
 
 labelhidden = ttk.Label(root, style='lable1.TLabel')
