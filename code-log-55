@@ -1,0 +1,293 @@
+import tkinter as tk 
+from tkinter import ttk 
+from fontTools.ttLib import TTFont
+from fontTools.pens.recordingPen import RecordingPen
+from tkinterdnd2 import DND_FILES, TkinterDnD
+import os
+import ufoLib2
+from fontTools.pens.pointPen import SegmentToPointPen
+
+# pink: #ff00e4 grün:#00ff00 grau: #d9d9d9
+
+root = TkinterDnD.Tk()
+root.title('convert')
+root.configure(pady=20, padx=20, background='#00ff00')
+root.attributes('-topmost', True)
+#---variables:
+current_lines = []
+current_width = 1
+
+#---window settings:
+swidth = root.winfo_screenwidth()
+sheight = root.winfo_screenheight()
+
+width = int(swidth * 0.25)
+height = int(sheight * 0.65)
+
+position_x = int((swidth - width)/2)
+position_y = int((sheight - height)/2)
+
+root.geometry(f'{width}x{height}+{position_x}+{position_y}')
+root.columnconfigure(0, weight=1)
+root.rowconfigure(0, weight=0)
+root.rowconfigure(1, weight=0)
+root.rowconfigure(2, weight=5)
+root.rowconfigure(3, weight=0)
+
+#------- style settings:
+style = ttk.Style()
+style.theme_use('alt')
+style.configure('button3.TButton',background='#00ff00',foreground='black',font=('artificiel',12))
+style.map('button3.TButton', foreground=[('active','#00ff00')])
+style.configure('label1.TLabel', font=('artificiel',12))
+#-----font settings:
+font_path = 'assets/fonts/artificiel-testing.otf'
+
+font = None
+glyph_set = None
+cmap = None
+file_path = None
+glyph = None
+
+#-------functions:
+def center_glyph(penData):
+    points =[]
+
+    for befehl, punkte in penData:
+        for pt in punkte:
+            points.append(pt)
+
+    x_punkte = []
+    for p in points:
+        x = p[0]
+        x_punkte.append(x)
+    min_x = min(x_punkte)
+    max_x = max(x_punkte)
+
+    return min_x, max_x
+
+def cubic_bezier(p0, p1, p2, p3, progress):
+    return (
+        (1-progress)**3 * p0[0] +
+        3*(1-progress)**2 * progress * p1[0] +
+        3*(1-progress) * progress**2 * p2[0] +
+        progress**3 * p3[0],
+
+        (1-progress)**3 * p0[1] +
+        3*(1-progress)**2 * progress * p1[1] +
+        3*(1-progress) * progress**2 * p2[1] +
+        progress**3 * p3[1]
+    )
+
+def tranform(pt, center_x, scale=0.3, offset_x = 190, offset_y= 300):
+    x,y = pt
+    x -= center_x
+    y = -y 
+
+    x *= scale
+    y *= scale
+
+    x += offset_x
+    y += offset_y
+
+    return x,y
+
+def draw_glyph(canvas1, penData):
+    current= None
+    starting = None
+    min_x, max_x = center_glyph(penData)
+    center_x = (min_x + max_x)/2
+    lines = []
+
+    if not penData:
+        return lines
+    
+    for befehl, punkte in penData:
+        if befehl == 'moveTo':
+            current = punkte[0]
+            starting = punkte[0]
+        elif befehl == 'lineTo':
+            new = punkte[0]
+            line_id = canvas1.create_line(tranform(current, center_x), tranform(new, center_x),smooth=True, joinstyle='round', capstyle='round', fill='#00ff00')
+            lines.append(line_id)
+            current=new
+        elif befehl == 'curveTo':
+            p1, p2, p3 = punkte
+            steps = 40
+            prev = current
+            for i in range(1, steps+1):
+                progress = i/steps
+                curve_points = cubic_bezier(current, p1, p2, p3, progress)
+                line_id = canvas1.create_line(tranform(prev, center_x), tranform(curve_points, center_x),smooth=True, joinstyle='round', capstyle='round', fill='#00ff00')
+                lines.append(line_id)
+                prev = curve_points
+            current = p3
+        elif befehl == 'closePath':
+            if starting is not None and current is not None:
+                line_id = canvas1.create_line(tranform(current, center_x), tranform(starting, center_x),smooth=True, joinstyle='round', capstyle='round', fill='#00ff00')
+                lines.append(line_id)
+
+    for line in lines:
+        canvas1.itemconfig(line, width=current_width)
+    return lines
+
+def render_glyph(character):
+    if not character or cmap is None:
+        return
+    
+    uni_code = ord(character[0])
+    glyph_name = cmap.get(uni_code)
+
+    if glyph_name is None:
+        return None
+    
+    glyph = glyph_set[glyph_name]
+    pen = RecordingPen()
+    glyph.draw(pen)
+    return pen.value
+
+def drawing_action(event=None):
+    global current_lines
+
+    selection = glyphlist.curselection()
+    if not selection:
+        return
+
+    input_value = glyphlist.get(selection[0])
+
+    penData = render_glyph(input_value)
+    canvas1.delete('all')
+
+    if penData is None:
+        canvas1.create_text(100, 100, text='NO GLYPH')
+
+    current_lines = draw_glyph(canvas1, penData)
+
+def load_font(path):
+    global font_path, font, glyph_set, cmap
+
+    try:
+        font_path = path
+        font = TTFont(font_path)
+        glyph_set = font.getGlyphSet()
+        cmap = font.getBestCmap()
+
+        glyphlist.event_generate('<<ListboxSelect>>')
+
+    except Exception as e:
+        print('Fehler', e)
+
+def update_path(value):
+    global current_width
+    current_width = float(value)
+    for line in current_lines:
+        canvas1.itemconfig(line, width=current_width)
+
+def export_ufo():
+    global font, glyph_set, cmap, font_path
+
+    if font is None:
+        print('drop font file first')
+        return
+# hier wird eine leere ufo font datei erstellt
+    ufo = ufoLib2.Font()
+# hier wird der font-name gespeichert
+    family_name = os.path.splitext(os.path.basename(font_path))[0]
+    ufo.info.familyName = family_name
+    ufo.info.styleName = 'transformed'
+# alle glyphen werden einzeln durchgegangen:
+    for uni_code, glyph_name in cmap.items():
+        try:
+            source_glyph = glyph_set[glyph_name]
+            if glyph_name in ufo:
+                del ufo[glyph_name]
+            glyph = ufo.newGlyph(glyph_name)
+            glyph.unicodes = [uni_code]
+
+            pen = glyph.getPointPen()
+        
+            source_glyph.draw(SegmentToPointPen(pen))
+            glyph.width = source_glyph.width 
+        except Exception as e:
+            print('fehler beim erstellen', glyph_name, e)
+
+    export_path = os.path.join(os.path.dirname(font_path), family_name + '.ufo')
+    ufo.save(export_path)
+    print('ufo export succeed', export_path)
+    
+#-------gui setup
+#-----drop
+dragdrop = ttk.Frame(root, style='frame1.TFrame', cursor='hand2')
+dragdrop.grid(column=0, row=0, sticky='nswe')
+dragdrop.columnconfigure(0, weight=1)
+dragdrop.rowconfigure(0, weight=1)
+
+dragLabel = ttk.Label(dragdrop, text='drop font file', anchor='center', style='label1.TLabel')
+dragLabel.grid(column=0, row=0, sticky='nswe', padx=10, pady=10, ipady=20)
+dragLabel.drop_target_register(DND_FILES)
+
+def drop_file(event):
+    global file_path
+    file_path = event.data.strip('{}')
+    font_name = os.path.splitext(os.path.basename(file_path))[0]
+    dragLabel.configure(text=font_name, foreground='#00ff00')
+    root.title(f'font viewer: {font_name}')
+    load_font(file_path)
+    load_list()
+
+dragLabel.dnd_bind('<<Drop>>', drop_file)
+
+#------glyphlist
+listframe=ttk.Frame(root, cursor='hand2')
+listframe.grid(column=0, row=1, sticky='we')
+listframe.columnconfigure(0, weight=1)
+listframe.columnconfigure(1, weight=0)
+
+scollbar1 = ttk.Scrollbar(listframe, orient='vertical', cursor='hand2')
+scollbar1.grid(column=1, row=0, sticky='nswe')
+
+
+glyphlist = tk.Listbox(listframe, height=3, selectbackground='#00ff00', selectforeground='white', foreground='black', yscrollcommand=scollbar1.set, font=('artificiel', 25), justify='center', cursor='hand2')
+glyphlist.grid(column=0, row=0, sticky='we')
+scollbar1.configure(command=glyphlist.yview)
+
+def load_list():
+    global glyph_set, glyph
+
+    glyphlist.delete(0, tk.END)
+
+    for uni_code in cmap.keys():
+        try:
+            character = chr(uni_code)
+            if character == ' ':
+                continue
+            glyphlist.insert(tk.END, character)
+
+        except:
+            pass
+    glyphlist.selection_set(0)
+    glyphlist.event_generate('<<ListboxSelect>>')
+
+glyphlist.selection_set(0)
+glyphlist.bind('<<ListboxSelect>>', drawing_action)
+
+#-----canvas
+canvas1 = tk.Canvas(root, cursor='hand2')
+canvas1.grid(column=0, row=2, sticky='nswe')
+
+#----footer
+footer = ttk.Frame(root, cursor='hand2')
+footer.grid(column=0, row=3, sticky='nswe')
+footer.columnconfigure(0, weight=1)
+footer.rowconfigure(0, weight=1)
+footer.rowconfigure(1, weight=1)
+
+slider1 = ttk.Scale(footer, orient='horizontal', command=update_path, from_=1, to=30, cursor='hand2')
+slider1.set(1)
+slider1.grid(column=0, row=0, pady=10, sticky='we', padx=10)
+
+button1 = ttk.Button(footer, text='export ufo', command=export_ufo, style='button3.TButton', cursor='hand2')
+button1.grid(column=0, row=1, pady=20, ipadx=20, ipady=5)
+
+#----program start
+root.mainloop()
