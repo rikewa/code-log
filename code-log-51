@@ -46,7 +46,7 @@ style.map('button3.TButton', foreground=[('active','#ff00e4')])
 style.configure('entry1.TEntry', foreground='#ff00e4')
 
 #-----font settings:
-font_path = 'assets/fonts/artificiel-testing.otf'
+font_path = 'assets/fonts/landi-testing.otf'
 
 font = TTFont(font_path)
 glyph_set = font.getGlyphSet()

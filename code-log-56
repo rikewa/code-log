@@ -1,0 +1,424 @@
+import tkinter as tk 
+from tkinter import ttk 
+from fontTools.ttLib import TTFont
+from fontTools.pens.recordingPen import RecordingPen
+from tkinterdnd2 import DND_FILES, TkinterDnD
+import os
+import ufoLib2
+from fontTools.pens.pointPen import SegmentToPointPen
+
+# pink: #ff00e4 grün:#00ff00 grau: #d9d9d9
+
+
+root = TkinterDnD.Tk()
+root.title('Recast Bézier')
+root.attributes('-topmost', True)
+root.configure(pady=10, padx=10, background='#ff00e4')
+#----variables
+shape_choice = tk.StringVar()
+shape_choice.set(value='line')
+step_var = tk.DoubleVar()
+polygon_offset = tk.DoubleVar(value=1)
+
+
+#----window settings:
+swidth = root.winfo_screenwidth()
+sheight = root.winfo_screenheight()
+
+width = int(swidth * 0.25)
+height = int(sheight * 0.65)
+
+position_x = int((swidth - width)/2)
+position_y = int((sheight - height)/2)
+
+root.geometry(f'{width}x{height}+{position_x}+{position_y}')
+root.columnconfigure(0, weight=1)
+root.rowconfigure(0, weight=0)
+root.rowconfigure(1, weight=0)
+root.rowconfigure(2, weight=0)
+root.rowconfigure(3, weight=5)
+root.rowconfigure(4, weight=0)
+
+#---style settings:
+style = ttk.Style()
+style.theme_use('alt')
+style.configure('frame1.TFrame', background='#ff00e4')
+style.configure('button1.TButton', font=('artificiel', 12), foreground='#ff00e4')
+style.configure('label1.TLabel', font=('artificiel', 12),foreground='#ff00e4')
+style.configure('menu1.TMenubutton', font=('artificiel', 12),foreground='#ff00e4')
+
+
+#---font settings:
+font_path = None
+font = None
+glyph_set = None
+cmap = None
+file_path = None
+glyph = None
+
+#----functions:
+def draw_shape(pt, p1, p2, center_x):
+    x1, y1 = transform(p1, center_x)
+    x2, y2 = transform(p2, center_x)
+
+    offset_value = polygon_offset.get()
+
+    mode = shape_choice.get()
+
+    if mode == 'line':
+        return canvas1.create_line(x1 , y1, x2 , y2)
+    elif mode == 'parallel':
+        return canvas1.create_line(x1 - offset_value, y1 - offset_value, x2 + offset_value, y2 + offset_value)
+    elif mode == 'oval':
+        return canvas1.create_oval(x1 - offset_value, y1 - offset_value, x2 + offset_value, y2 + offset_value)
+    elif mode == 'rect':
+        return canvas1.create_rectangle(x1 - offset_value, y1 - offset_value, x2 + offset_value, y2 + offset_value)
+    
+def center_glyph(penData):
+    points = []
+
+    for befehl, punkte in penData:
+        for pt in punkte:
+            points.append(pt)
+    
+    x_punkte = []
+
+    for p in points:
+        x = p[0]
+        x_punkte.append(x)
+    min_x = min(x_punkte)
+    max_x = max(x_punkte)
+    return min_x, max_x
+
+def cubic_bezier(p0, p1, p2, p3, progress):
+    return (
+        (1-progress)**3 * p0[0] +
+        3*(1-progress)**2 * progress * p1[0] +
+        3*(1-progress) * progress**2 * p2[0] +
+        progress**3 * p3[0],
+
+        (1-progress)**3 * p0[1] +
+        3*(1-progress)**2 * progress * p1[1] +
+        3*(1-progress) * progress**2 * p2[1] +
+        progress**3 * p3[1]
+    )
+
+def transform(pt, center_x, scale=0.28, offset_x=200, offset_y=300):
+    x,y = pt
+    x -= center_x
+    y = -y
+
+    x *= scale
+    y *= scale
+
+    x +=offset_x
+    y +=offset_y
+
+    return x,y 
+
+def draw_glyph(canvas1, penData):
+    current = None
+    starting = None
+    lines = []
+    min_x, max_x = center_glyph(penData)
+    center_x = (min_x + max_x)/2
+
+    if not penData:
+        return lines
+    
+    for befehl, punkte in penData:
+        if befehl == 'moveTo':
+            current = punkte[0]
+            starting = punkte[0]
+        elif befehl == 'lineTo':
+            new = punkte[0]
+            line_id = draw_shape(canvas1, current, new, center_x)
+            lines.append(line_id)
+            current = new
+        elif befehl == 'curveTo':
+            p1, p2, p3 = punkte 
+            steps = int(step_var.get())
+            prev = current
+            for i in range(1, steps+1):
+                progress = i/steps
+                curve_point = cubic_bezier(current, p1, p2, p3, progress)
+                line_id = draw_shape(canvas1, prev, curve_point, center_x)
+                lines.append(line_id)
+                prev = curve_point
+            current = p3
+        elif befehl == 'closePath':
+            if starting is not None and current is not None:
+                line_id = draw_shape(canvas1, current, starting, center_x)
+                lines.append(line_id)
+    return lines
+
+def render_glyph(character):
+    if not character or cmap is None:
+        return
+    
+    uni_code = ord(character)
+    glyph_name = cmap.get(uni_code)
+
+    if glyph_name is None:
+        return
+    
+    glyph = glyph_set[glyph_name]
+    pen = RecordingPen()
+    glyph.draw(pen)
+    return pen.value
+
+def drawing_action(event=None):
+    selection = glyphList.curselection()
+    if not selection:
+        return
+    
+    input_value = glyphList.get(selection[0])
+    penData = render_glyph(input_value)
+    canvas1.delete('all')
+
+    if penData is None:
+        canvas1.create_text(100, 100, text='NO GLYPH')
+
+    draw_glyph(canvas1, penData)
+
+def load_font(path):
+    global font, font_path, cmap, glyph_set
+
+    try:
+        font_path = path
+        font = TTFont(font_path)
+        glyph_set = font.getGlyphSet()
+        cmap = font.getBestCmap()
+
+        glyphList.event_generate('<<ListboxSelect>>')
+
+    except Exception as e:
+        print('fehler', e)
+
+def update_steps(value):
+    value = float(value)
+    step_value = round(value/0.2)*0.2
+    step_var.set(step_value)
+    drawing_action()
+
+def export_file():
+    global font, font_path, cmap, glyph_set
+
+    if font is None:
+        canvas1.create_text(100, 100, text='drop font file first', fill='black')
+        return
+    try:
+        ufo = ufoLib2.Font()
+        family_name = os.path.splitext(os.path.basename(font_path))[0]
+        ufo.info.familyName = family_name
+        ufo.info.styleName = 'tranformed'
+
+        for uni_code, glyph_name in cmap.items():
+            try:
+                source_glyph = glyph_set[glyph_name]
+                if glyph_name in ufo:
+                    del ufo[glyph_name]
+                glyph = ufo.newGlyph(glyph_name)
+                glyph.unicodes = [uni_code]
+
+                if 'hmtx' in font:
+                    glyph.width = font['hmtx'][glyph_name][0]
+                
+                pen = glyph.getPen()
+                source_glyph.draw(pen)
+
+            except Exception as e:
+                print('fehler beim erstellen', glyph_name, e)
+
+        export_dir = os.path.join(os.path.dirname(font_path), 'export')
+        os.makedirs(export_dir, exist_ok=True)
+
+        export_path = os.path.join(export_dir, f'{family_name}-{ufo.info.styleName}.ufo')
+        ufo.save(export_path)
+        print('succeed')
+
+    except Exception as e:
+        print('fehler', e)
+
+def export_svg():
+    selection = glyphList.curselection()
+    if not selection:
+        return
+
+    input_value = glyphList.get(selection[0])
+    penData = render_glyph(input_value)
+    if not penData:
+        return
+
+    min_x, max_x = center_glyph(penData)
+    center_x = (min_x + max_x) / 2
+    offset_value = polygon_offset.get()
+    mode = shape_choice.get()
+
+    svg_elements = []
+    current = None
+    starting = None
+
+    def svg_segment(p1, p2):
+        x1, y1 = transform(p1, center_x)
+        x2, y2 = transform(p2, center_x)
+
+        if mode == 'line':
+            svg_elements.append(f'<line x1="{x1:.1f}" y1="{y1:.1f}" x2="{x2:.1f}" y2="{y2:.1f}" stroke="black" stroke-width="1" fill="none"/>')
+        elif mode == 'parallel':
+            svg_elements.append(f'<line x1="{x1-offset_value:.1f}" y1="{y1-offset_value:.1f}" x2="{x2+offset_value:.1f}" y2="{y2+offset_value:.1f}" stroke="black" stroke-width="1" fill="none"/>')
+        elif mode == 'oval':
+            svg_elements.append(f'<ellipse cx="{(x1+x2)/2:.1f}" cy="{(y1+y2)/2:.1f}" rx="{abs(x2-x1)/2+offset_value:.1f}" ry="{abs(y2-y1)/2+offset_value:.1f}" stroke="black" stroke-width="1" fill="none"/>')
+        elif mode == 'rect':
+            lx = min(x1, x2) - offset_value
+            ty = min(y1, y2) - offset_value
+            rx = max(x1, x2) + offset_value
+            by = max(y1, y2) + offset_value
+            svg_elements.append(f'<rect x="{lx:.1f}" y="{ty:.1f}" width="{rx-lx:.1f}" height="{by-ty:.1f}" stroke="black" stroke-width="1" fill="none"/>')
+
+    for befehl, punkte in penData:
+        if befehl == 'moveTo':
+            current = punkte[0]
+            starting = punkte[0]
+        elif befehl == 'lineTo':
+            new = punkte[0]
+            svg_segment(current, new)
+            current = new
+        elif befehl == 'curveTo':
+            p1, p2, p3 = punkte
+            steps = int(step_var.get())
+            prev = current
+            for i in range(1, steps + 1):
+                progress = i / steps
+                curve_point = cubic_bezier(current, p1, p2, p3, progress)
+                svg_segment(prev, curve_point)
+                prev = curve_point
+            current = p3
+        elif befehl == 'closePath':
+            if starting is not None and current is not None:
+                svg_segment(current, starting)
+
+    w = canvas1.winfo_width()
+    h = canvas1.winfo_height()
+
+    svg = f'<svg xmlns="http://www.w3.org/2000/svg" width="{w}" height="{h}">\n'
+    svg += '\n'.join(svg_elements)
+    svg += '\n</svg>'
+
+    export_dir = os.path.join(os.path.dirname(font_path), 'export')
+    os.makedirs(export_dir, exist_ok=True)
+
+    char_name = input_value if input_value.isascii() else f'u{ord(input_value):04X}'
+    export_path = os.path.join(export_dir, f'{char_name}_{mode}.svg')
+
+    with open(export_path, 'w') as f:
+        f.write(svg)
+
+    print('SVG exportiert:', export_path)
+
+#-----GUI setup:
+#-------Drag and Drop
+dragdrop = ttk.Frame(root)
+dragdrop.grid(column=0, row=0, sticky='nswe', pady=10)
+dragdrop.columnconfigure(0, weight=1)
+dragdrop.rowconfigure(0, weight=1)
+
+dragLabel = ttk.Label(dragdrop, text='Drop Font File', anchor='center', style='label1.TLabel')
+dragLabel.grid(column=0, row=0, sticky='nswe', padx=10, pady=10, ipady=20)
+dragLabel.drop_target_register(DND_FILES)
+
+def drop_file(event):
+    global file_path
+    file_path = event.data.strip('{}')
+   # font_name = os.path.splitext(os.path.basename(file_path))[0]
+   # root.title(f'title {font_name}')
+    load_font(file_path)
+    load_list()
+
+dragLabel.dnd_bind('<<Drop>>', drop_file)
+
+#------Liste
+listFrame = ttk.Frame(root, style='frame1.TFrame')
+listFrame.grid(column=0, row=1,sticky='nswe')
+listFrame.columnconfigure(0, weight=1)
+listFrame.columnconfigure(1, weight=0)
+
+scrollbar1 = ttk.Scrollbar(listFrame, orient='vertical')
+scrollbar1.grid(column=1, row=0, sticky='ns')
+
+glyphList = tk.Listbox(listFrame, height=3, yscrollcommand=scrollbar1.set,  selectbackground='#ff00e4', selectforeground='white', foreground='#ff00e4',font=('artificiel', 25), justify='center', cursor='hand2')
+glyphList.grid(column=0, row=0, sticky='nswe')
+scrollbar1.configure(command=glyphList.yview)
+
+def load_list():
+    global glyph_set, glyph
+
+    glyphList.delete(0, tk.END)
+
+    for uni_code in cmap.keys():
+        try:
+            character = chr(uni_code)
+            if character == ' ':
+                continue
+            glyphList.insert(tk.END, character)
+
+        except:
+            pass
+    glyphList.selection_set(0)
+    glyphList.event_generate('<<ListboxSelect>>')
+
+glyphList.select_set(0)
+glyphList.bind('<<ListboxSelect>>', drawing_action)
+
+#-----Menu
+shapeModus = ttk.Frame(root, cursor='hand2')
+shapeModus.grid(column=0, row=2, sticky='nswe')
+shapeModus.columnconfigure(0, weight=1)
+
+dropdown = ttk.Menubutton(shapeModus, textvariable=shape_choice, style='menu1.TMenubutton', cursor='hand2')
+dropdown.grid(column=0, row=0,sticky='we')
+menu1 = tk.Menu(shapeModus)
+
+menu1.add_radiobutton(label='line', value='line', variable=shape_choice, command=drawing_action)
+menu1.add_radiobutton(label='parallel', value='parallel', variable=shape_choice, command=drawing_action)
+menu1.add_radiobutton(label='oval', value='oval',variable=shape_choice, command=drawing_action)
+menu1.add_radiobutton(label='rectangle', value='rect',variable=shape_choice, command=drawing_action)
+
+dropdown.configure(menu=menu1)
+
+#-----canvas
+canvasFrame = ttk.Frame(root, cursor='hand2')
+canvasFrame.grid(column=0, row=3,sticky='nswe',pady=10)
+canvasFrame.columnconfigure(0, weight=1)
+canvasFrame.columnconfigure(1, weight=0)
+canvasFrame.rowconfigure(0, weight=1)
+canvasFrame.rowconfigure(1, weight=0)
+
+canvas1 = tk.Canvas(canvasFrame)
+canvas1.grid(column=0, row=0, sticky='nswe')
+
+slider1 = ttk.Scale(canvasFrame, orient='vertical', from_=50, to=1, command=update_steps, cursor='hand2')
+slider1.set(50)
+slider1.grid(column=1, row=0, sticky='ns')
+
+slider2 = ttk.Scale(canvasFrame, orient='horizontal', from_=1, to=100, variable=polygon_offset, command=lambda value: drawing_action(), cursor='hand2' )
+slider2.set(1)
+slider2.grid(column=0, row=1, sticky='we')
+
+
+
+#------footer 
+footer = ttk.Frame(root, style='frame1.TFrame', cursor='hand2')
+footer.grid(column=0, row=4)
+footer.columnconfigure(0, weight=1)
+footer.columnconfigure(1, weight=1)
+
+export = ttk.Button(footer, text='export ufo', command=export_file, style='button1.TButton', cursor='hand2')
+export.grid(column=0, row=0, pady=10, padx=10)
+
+export = ttk.Button(footer, text='export svg', command=export_svg, style='button1.TButton', cursor='hand2')
+export.grid(column=1, row=0, padx=10)
+
+#----program start:
+load_font('assets/fonts/artificiel-testing.otf')
+root.mainloop()

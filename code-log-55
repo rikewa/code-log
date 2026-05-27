@@ -231,7 +231,7 @@ def drop_file(event):
     file_path = event.data.strip('{}')
     font_name = os.path.splitext(os.path.basename(file_path))[0]
     dragLabel.configure(text=font_name, foreground='#00ff00')
-    root.title(f'font viewer: {font_name}')
+    root.title(f'convert: {font_name}')
     load_font(file_path)
     load_list()
 
