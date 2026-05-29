@@ -1,0 +1,303 @@
+import tkinter as tk 
+from tkinter import ttk 
+from fontTools.ttLib import TTFont
+from fontTools.pens.recordingPen import RecordingPen
+from fontTools.varLib.instancer import instantiateVariableFont
+# pink: #ff00e4 grün:#00ff00 grau: #d9d9d9
+
+
+root = tk.Tk()
+root.title('Variable Bézier')
+root.attributes('-topmost', True)
+root.configure(pady=10, padx=10, background='#ff00e4')
+#----variables:
+shape_choice = tk.StringVar()
+shape_choice.set(value='option')
+
+variable_value = tk.DoubleVar(value=8)
+current_width = 2
+offset_var = tk.DoubleVar()
+current_lines=[]
+step_var = tk.DoubleVar()
+
+vf = None
+
+
+#-----window settings
+swidth = root.winfo_screenwidth()
+sheight = root.winfo_screenheight()
+
+width = int(swidth * 0.25)
+height = int(sheight * 0.7)
+
+position_x = int((swidth - width)/2)
+position_y = int((sheight - height)/2)
+
+root.geometry(f'{width}x{height}+{position_x}+{position_y}')
+root.columnconfigure(0, weight=1)
+root.rowconfigure(0, weight=0)
+root.rowconfigure(1, weight=0)
+root.rowconfigure(2, weight=0)
+root.rowconfigure(3, weight=5)
+
+#-------style settings:
+style = ttk.Style()
+style.theme_use('alt')
+style.configure('frame1.TFrame', background='#ff00e4')
+style.configure('menu.TMenubutton', font=('Mavis Text', 12), foreground='#ff00e4')
+
+
+#-----functions:
+def centerGlyph(penData):
+    points =[]
+
+    for befehl, punkte in penData:
+        for pt in punkte:
+            points.append(pt)
+
+    x_punkte=[]
+
+    for p in points:
+        x = p[0]
+        x_punkte.append(x)
+    min_x = min(x_punkte)
+    max_x = max(x_punkte)
+    return min_x, max_x
+
+def cubic_bezier(p0, p1, p2, p3, progress):
+    return (
+        (1-progress)**3 * p0[0] +
+        3*(1-progress)**2 * progress * p1[0] +
+        3*(1-progress) * progress**2 * p2[0] +
+        progress**3 * p3[0],
+
+        (1-progress)**3 * p0[1] +
+        3*(1-progress)**2 * progress * p1[1] +
+        3*(1-progress) * progress**2 * p2[1] +
+        progress**3 * p3[1]
+    )
+
+def transform(pt, center_x, scale=0.3, offset_x = 190, offset_y=350):
+    x,y = pt
+    x -= center_x
+    y = -y
+
+    x *= scale
+    y *= scale
+
+    x += offset_x
+    y += offset_y
+
+    return x,y
+
+def draw_shape(p1, p2, center_x):
+    x1, y1 = transform(p1, center_x)
+    x2, y2 = transform(p2, center_x)
+
+    mode = shape_choice.get()
+    offset = offset_var.get()
+
+    if mode == 'vector':
+        return canvas1.create_line(x1, y1, x2, y2, fill='#ff00e4')
+    elif mode == 'oval':
+        return canvas1.create_oval(x1 - offset, y1 - offset, x2 + offset , y2 + offset, fill='#ff00e4')
+    elif mode == 'polygon':
+        return canvas1.create_polygon(x1, y1, x2, y2,x2+offset, y2+offset, fill='#ff00e4')
+    elif mode == 'rectangle':
+        return canvas1.create_rectangle(x1 - offset, y1 - offset, x2 + offset, y2 + offset, fill='#ff00e4')
+
+
+def draw_glyph(canvas1, penData):
+    canvas1.delete('all')
+    current = None
+    starting = None
+    lines = []
+    min_x, max_x = centerGlyph(penData)
+    center_x = (min_x + max_x)/2
+    
+
+    if not penData:
+        return lines
+    
+    for befehl, punkte in penData:
+        if befehl == 'moveTo':
+            current = punkte[0]
+            starting = punkte[0]
+        elif befehl == 'lineTo':
+            new = punkte[0]
+            line_id = draw_shape(current, new, center_x)
+            lines.append(line_id)
+            current = new
+        elif befehl == 'curveTo':
+            p1, p2, p3 = punkte
+            steps = int(step_var.get())
+            prev = current
+            for i in range(1, steps+1):
+                progress = i/steps
+                curve_points = cubic_bezier(current, p1, p2, p3, progress)
+                line_id = draw_shape(prev, curve_points, center_x)
+                lines.append(line_id)
+                prev = curve_points
+            current = p3
+        elif befehl == 'closePath':
+            if starting is not None and current is not None:
+                line_id = draw_shape(current, starting, center_x)
+                lines.append(line_id)
+    for line in lines:
+        canvas1.itemconfig(line, width=current_width)
+    return lines
+
+def render_glyph(character):
+    if not character or cmap is None:
+        return
+    
+    uni_code = ord(character)
+    glyph_name = cmap.get(uni_code)
+
+    if glyph_name is None:
+        return None
+    
+    glyph = glyph_set[glyph_name]
+    pen = RecordingPen()
+    glyph.draw(pen)
+    return pen.value
+
+def drawing_action(event=None):
+    global current_lines
+    selection = glyphList.curselection()
+
+    if not selection:
+        return
+    
+    input_value = glyphList.get(selection[0])
+    penData = render_glyph(input_value)
+
+    if penData is None:
+        return canvas1.create_text(100, 100, text='NO GLYPH')
+
+    current_lines=draw_glyph(canvas1, penData)
+
+def load_font():
+    global vf, font_path, cmap, glyph_set
+
+    try:
+        font_path = 'assets/fonts/Mavis-Variable.otf'
+        vf = TTFont(font_path)
+        for axis in vf['fvar'].axes:
+            print(axis.axisTag)
+            print(axis.minValue)
+            print(axis.maxValue)
+
+        glyph_set = vf.getGlyphSet()
+        cmap = vf.getBestCmap()
+    
+    except Exception as e:
+        print('fehler', e)
+
+def update_steps(value):
+    val = float(value)
+    step_value = round(val/0.2)*0.2
+    step_var.set(step_value)
+    drawing_action()
+
+def variable_font(event=None):
+    global glyph_set, cmap
+
+    opsz_value = round(variable_value.get())
+    variable_value.set(opsz_value)
+    instance = instantiateVariableFont(vf, {'opsz': opsz_value }, inplace=False)
+    glyph_set = instance.getGlyphSet()
+    cmap = instance.getBestCmap()
+
+    drawing_action()
+
+#-----GUI Set-Up:
+#--------shape
+header = ttk.Frame(root, style='frame1.TFrame')
+header.grid(column=0, row=0, sticky='nswe', pady=10)
+header.columnconfigure(0, weight=1)
+header.rowconfigure(0, weight=1)
+
+dropdown = ttk.Menubutton(header, textvariable=shape_choice, style='menu.TMenubutton')
+dropdown.grid(column=0, row=0)
+
+menu1 = tk.Menu(header)
+dropdown.configure(menu=menu1)
+menu1.add_radiobutton(label='vector', value='vector', variable=shape_choice, command=drawing_action)
+menu1.add_radiobutton(label='oval', value='oval', variable=shape_choice,command=drawing_action)
+menu1.add_radiobutton(label='rectangle', value='rectangle', variable=shape_choice,command=drawing_action)
+menu1.add_radiobutton(label='polygon', value='polygon', variable=shape_choice,command=drawing_action)
+
+#-----list
+listFrame = ttk.Frame(root)
+listFrame.grid(column=0, row=1, sticky='nswe')
+listFrame.columnconfigure(0, weight=1)
+listFrame.columnconfigure(1, weight=0)
+listFrame.rowconfigure(0, weight=1)
+
+scollbar1 = ttk.Scrollbar(listFrame, orient='vertical', cursor='hand2')
+scollbar1.grid(column=1, row=0, sticky='ns')
+
+glyphList = tk.Listbox(listFrame, height=3, yscrollcommand=scollbar1.set, selectbackground='#ff00e4', selectforeground='white', foreground='#ff00e4',font=('Mavis Text', 25), justify='center', cursor='hand2')
+glyphList.grid(column=0, row=0, sticky='we')
+scollbar1.configure(command=glyphList.yview)
+
+def load_list():
+    global glyph_set
+    glyphList.delete(0, tk.END)
+
+    for uni_code in cmap.keys():
+        try:
+            character = chr(uni_code)
+            if character == ' ':
+                continue
+            glyphList.insert(tk.END, character)
+
+        except:
+            pass
+    glyphList.selection_set(0)
+    glyphList.event_generate('<<ListboxSelect>>')
+
+glyphList.selection_set(0)
+glyphList.bind('<<ListboxSelect>>', drawing_action)
+
+#------toolbar
+sliderFrame = ttk.Frame(root)
+sliderFrame.grid(column=0, row=2, sticky='nswe')
+sliderFrame.columnconfigure(0, weight=0)
+sliderFrame.columnconfigure(1, weight=3)
+sliderFrame.rowconfigure(0, weight=1)
+
+entry1 = ttk.Entry(sliderFrame, textvariable=variable_value, width=3, justify='center')
+entry1.configure(font=('Mavis Text', 25), foreground='#ff00e4')
+entry1.grid(column=0, row=0, padx=10, pady=10)
+
+entry1.bind('<Return>', variable_font)
+
+variableSlider = ttk.Scale(sliderFrame, orient='horizontal', from_=8, to=72, variable=variable_value, command=lambda value: variable_font())
+variableSlider.grid(column=1, row=0, sticky='we')
+
+#-----canvas:
+canvasFrame = ttk.Frame(root)
+canvasFrame.grid(column=0, row=3, sticky='nswe', pady=10)
+canvasFrame.columnconfigure(0, weight=1)
+canvasFrame.columnconfigure(1, weight=0)
+canvasFrame.rowconfigure(0, weight=1)
+canvasFrame.rowconfigure(1, weight=0)
+
+canvas1 = tk.Canvas(canvasFrame)
+canvas1.grid(column=0, row=0, sticky='nswe')
+
+slider1 = ttk.Scale(canvasFrame, orient='vertical', from_=50, to=1, command=update_steps)
+slider1.set(50)
+slider1.grid(column=1, row=0, sticky='ns')
+
+slider2 = ttk.Scale(canvasFrame, orient='horizontal',from_=1, to=100, variable=offset_var, command=lambda value:drawing_action())
+slider2.set(1)
+slider2.grid(column=0, row=1, sticky='we')
+
+#------program start:
+load_font()
+variable_font()
+load_list()
+root.mainloop()

@@ -367,7 +367,7 @@ listFrame.columnconfigure(0, weight=1)
 scollbar1 = ttk.Scrollbar(listFrame, orient='vertical', cursor='hand2')
 scollbar1.grid(column=1, row=0, sticky='ns')
 
-glyphlist = tk.Listbox(listFrame, height=3, yscrollcommand=scollbar1.set, selectbackground='#ff00e4', selectforeground='white', foreground='#ff00e4',font=('artificiel', 25), justify='center', cursor='hand2')
+glyphlist = tk.Listbox(listFrame, height=3, yscrollcommand=scollbar1.set, selectbackground='#ff00e4', selectforeground='white', foreground='#ff00e4',font=('Mavis Text', 25), justify='center', cursor='hand2')
 glyphlist.grid(column=0, row=0, sticky='we')
 scollbar1.configure(command=glyphlist.yview)
 
