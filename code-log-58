@@ -213,12 +213,12 @@ def variable_font(event=None):
 
 #-----GUI Set-Up:
 #--------shape
-header = ttk.Frame(root, style='frame1.TFrame')
+header = ttk.Frame(root, style='frame1.TFrame', cursor='hand2')
 header.grid(column=0, row=0, sticky='nswe', pady=10)
 header.columnconfigure(0, weight=1)
 header.rowconfigure(0, weight=1)
 
-dropdown = ttk.Menubutton(header, textvariable=shape_choice, style='menu.TMenubutton')
+dropdown = ttk.Menubutton(header, textvariable=shape_choice, style='menu.TMenubutton', cursor='hand2')
 dropdown.grid(column=0, row=0)
 
 menu1 = tk.Menu(header)
@@ -229,7 +229,7 @@ menu1.add_radiobutton(label='rectangle', value='rectangle', variable=shape_choic
 menu1.add_radiobutton(label='polygon', value='polygon', variable=shape_choice,command=drawing_action)
 
 #-----list
-listFrame = ttk.Frame(root)
+listFrame = ttk.Frame(root, cursor='hand2')
 listFrame.grid(column=0, row=1, sticky='nswe')
 listFrame.columnconfigure(0, weight=1)
 listFrame.columnconfigure(1, weight=0)
@@ -262,19 +262,19 @@ glyphList.selection_set(0)
 glyphList.bind('<<ListboxSelect>>', drawing_action)
 
 #------toolbar
-sliderFrame = ttk.Frame(root)
+sliderFrame = ttk.Frame(root, cursor='hand2')
 sliderFrame.grid(column=0, row=2, sticky='nswe')
 sliderFrame.columnconfigure(0, weight=0)
 sliderFrame.columnconfigure(1, weight=3)
 sliderFrame.rowconfigure(0, weight=1)
 
-entry1 = ttk.Entry(sliderFrame, textvariable=variable_value, width=3, justify='center')
+entry1 = ttk.Entry(sliderFrame, textvariable=variable_value, width=3, justify='center', cursor='hand2')
 entry1.configure(font=('Mavis Text', 25), foreground='#ff00e4')
 entry1.grid(column=0, row=0, padx=10, pady=10)
 
 entry1.bind('<Return>', variable_font)
 
-variableSlider = ttk.Scale(sliderFrame, orient='horizontal', from_=8, to=72, variable=variable_value, command=lambda value: variable_font())
+variableSlider = ttk.Scale(sliderFrame, orient='horizontal', from_=8, to=72, variable=variable_value, command=lambda value: variable_font(), cursor='hand2')
 variableSlider.grid(column=1, row=0, sticky='we')
 
 #-----canvas:
@@ -288,11 +288,11 @@ canvasFrame.rowconfigure(1, weight=0)
 canvas1 = tk.Canvas(canvasFrame)
 canvas1.grid(column=0, row=0, sticky='nswe')
 
-slider1 = ttk.Scale(canvasFrame, orient='vertical', from_=50, to=1, command=update_steps)
+slider1 = ttk.Scale(canvasFrame, orient='vertical', from_=50, to=1, command=update_steps, cursor='hand2')
 slider1.set(50)
 slider1.grid(column=1, row=0, sticky='ns')
 
-slider2 = ttk.Scale(canvasFrame, orient='horizontal',from_=1, to=100, variable=offset_var, command=lambda value:drawing_action())
+slider2 = ttk.Scale(canvasFrame, orient='horizontal',from_=1, to=100, variable=offset_var, command=lambda value:drawing_action(), cursor='hand2')
 slider2.set(1)
 slider2.grid(column=0, row=1, sticky='we')
 
