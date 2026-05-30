@@ -186,8 +186,6 @@ def load_font(path):
         font = TTFont(font_path)
         glyph_set = font.getGlyphSet()
         cmap = font.getBestCmap()
-
-        glyphlist.event_generate('<<ListboxSelect>>')
     
     except Exception as e:
         print('fehler', e)
