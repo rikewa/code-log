@@ -29,7 +29,7 @@ swidth = root.winfo_screenwidth()
 sheight = root.winfo_screenheight()
 
 width = int(swidth * 0.4)
-height = int(sheight * 0.5)
+height = int(sheight * 0.6)
 
 position_x = int((swidth - width)/2)
 position_y = int((sheight - height)/2)
@@ -146,13 +146,13 @@ def draw_text(text):
     canvas1.delete('all')
     current_lines = []
     original_points = []               
-    x_start = 50 * text_scale / 0.3
-    y_start = 250 * text_scale / 0.3
+    x_start = 80 * text_scale / 0.3
+    y_start = 350 * text_scale / 0.3
     scale_start = text_scale
 
     for character in text:
         if character == '|':
-            x_start = 50 * text_scale / 0.3
+            x_start = 80 * text_scale / 0.3
             y_start += line_height * text_scale / 0.3
             continue
         penData = render_glyph(character)
@@ -277,7 +277,7 @@ header.rowconfigure(0, weight=1)
 entry1 = ttk.Entry(header, justify='center',cursor='hand2')
 entry1.grid(column=0, row=1, sticky='we')
 entry1.configure(font=('Mavis Text', 25), foreground='#ff00e4')
-entry1.insert(0, 'a')
+entry1.insert(0, '60')
 
 button1 = ttk.Button(header, text='draw', command=drawing_button, style='button1.TButton', cursor='hand2')
 button1.grid(column=1, row=1, padx=10)
